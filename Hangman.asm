@@ -21,6 +21,8 @@ _randomSoChan:
 	addi $sp,$sp,-32
 	sw $ra,($sp)
 	sw $s0,4($sp)
+	sw $t0,8($sp)
+	sw $t1,12($sp)
 	# Than thu tuc
 	li $t0,2
 	div $a1,$t0 # MAX % 2
@@ -43,6 +45,8 @@ _randomSoChan.thoatMax:
 	#Cuoi thu tuc
 	lw $ra,($sp)
 	lw $s0,4($sp)
+	lw $t0,8($sp)
+	lw $t1,12($sp)
 	# Xoa Stack
 	addi $sp,$sp,32
 	#Quay ve
