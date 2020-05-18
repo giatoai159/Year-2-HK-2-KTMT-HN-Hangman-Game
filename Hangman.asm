@@ -1,9 +1,24 @@
 .data
+#--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
 	SoChanRandom: .word 0
 	MaxRandom: .word 0
 	ChuCaiDaDoan: .word 0
 	tempString: .word 0
 	test: .asciiz "   "
+#--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
+#--------------------------------------------------------------------VINH---------------------------------------------------------------------#
+	InHangMan1Dong1: .asciiz "__________\n"
+	InHangMan1Dong2: .asciiz "|/       |\n"
+	InHangMan1Dong3: .asciiz "|         \n"
+	InHangMan2Dong3: .asciiz "|        O\n"
+	InHangMan3Dong4: .asciiz "|       /\n"
+	InHangMan4Dong4: .asciiz "|       /|\n"
+	InHangMan5Dong4: .asciiz "|       /|\\\n"
+	InHangMan7Dong5: .asciiz "|       / \\\n"
+#--------------------------------------------------------------------VINH---------------------------------------------------------------------#
+#--------------------------------------------------------------------TUAN---------------------------------------------------------------------#
+
+#--------------------------------------------------------------------TUAN---------------------------------------------------------------------#
 .text
 	.globl main
 main:
@@ -144,7 +159,166 @@ _InChuCai.ExitLoop1:
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
 
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
+_InHangMan: #Ham nhan vao 1 so #$a0 tu 1->7 va in ra hinh Hangman treo co tuong ung
+#Dau thu tuc:
+	addi $sp,$sp,-32
+	sw $ra,($sp)
+	beq $a0,7,InHangMan.7
+	beq $a0,6,InHangMan.6
+	beq $a0,5,InHangMan.5
+	beq $a0,4,InHangMan.4
+	beq $a0,3,InHangMan.3
+	beq $a0,2,InHangMan.2
+	beq $a0,1,InHangMan.1
 
+#Cuoi thu tuc:
+	lw $ra,($sp)
+	addi $sp,$sp,32
+	jr $ra
+#Ket thuc:
+_InHangMang.KetThuc:
+	li $v0,10
+	syscall
+InHangMan.1:
+	la $a0,InHangMan1Dong1
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong2
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong3
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong3
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong3
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong3
+	li $v0,4
+	syscall
+	j _InHangMang.KetThuc
+InHangMan.2:
+	la $a0,InHangMan1Dong1
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong2
+	li $v0,4
+	syscall
+	la $a0,InHangMan2Dong3
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong3
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong3
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong3
+	li $v0,4
+	syscall
+	j _InHangMang.KetThuc
+InHangMan.3:
+	la $a0,InHangMan1Dong1
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong2
+	li $v0,4
+	syscall
+	la $a0,InHangMan2Dong3
+	li $v0,4
+	syscall
+	la $a0,InHangMan3Dong4
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong3
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong3
+	li $v0,4
+	syscall
+	j _InHangMang.KetThuc
+InHangMan.4:
+	la $a0,InHangMan1Dong1
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong2
+	li $v0,4
+	syscall
+	la $a0,InHangMan2Dong3
+	li $v0,4
+	syscall
+	la $a0,InHangMan4Dong4
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong3
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong3
+	li $v0,4
+	syscall
+	j _InHangMang.KetThuc
+InHangMan.5:
+	la $a0,InHangMan1Dong1
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong2
+	li $v0,4
+	syscall
+	la $a0,InHangMan2Dong3
+	li $v0,4
+	syscall
+	la $a0,InHangMan5Dong4
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong3
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong3
+	li $v0,4
+	syscall
+	j _InHangMang.KetThuc
+InHangMan.6:
+	la $a0,InHangMan1Dong1
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong2
+	li $v0,4
+	syscall
+	la $a0,InHangMan2Dong3
+	li $v0,4
+	syscall
+	la $a0,InHangMan5Dong4
+	li $v0,4
+	syscall
+	la $a0,InHangMan3Dong4
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong3
+	li $v0,4
+	syscall
+	j _InHangMang.KetThuc
+InHangMan.7:
+	la $a0,InHangMan1Dong1
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong2
+	li $v0,4
+	syscall
+	la $a0,InHangMan2Dong3
+	li $v0,4
+	syscall
+	la $a0,InHangMan5Dong4
+	li $v0,4
+	syscall
+	la $a0,InHangMan7Dong5
+	li $v0,4
+	syscall
+	la $a0,InHangMan1Dong3
+	li $v0,4
+	syscall
+	j _InHangMang.KetThuc
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 
 #--------------------------------------------------------------------TUAN---------------------------------------------------------------------#
