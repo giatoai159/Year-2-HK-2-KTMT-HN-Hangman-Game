@@ -78,6 +78,20 @@ _randomSoChan.thoatMax:
 	jr $ra
 
 #----------------------------------------------------------------------------------------------------------------------------------------# WIP
+#void InChuCai(string chucaidoan, char tu, char den)
+#{
+#	string s;
+#	for (char i = tu; i <= den; i++)
+#	{
+#		if (chucaidoan.find(i)==-1)
+#		{
+#			s += i;
+#			s += "  ";
+#		}
+#		else
+#			s += "   ";
+#	}
+#}
 _InChuCai:
 	#Dau thu tuc
 	addi $sp,$sp,-32
