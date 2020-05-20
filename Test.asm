@@ -8,8 +8,8 @@
 	question: .space 1000000
 	score: .space 1000000
 	test: .asciiz "4-Huy"
-	answer: .space 15
-	suggestion: .space 1
+	answer: .space 20
+	suggestion: .space 1000
 	
 	score_arr_int: .word 0:11
 
