@@ -27,8 +27,8 @@
 	question: .space 1000000
 	score: .space 1000000
 	
-	answer: .space 15
-	suggestion: .space 1
+	answer: .space 20
+	suggestion: .space 1000
 #--------------------------------------------------------------------TUAN---------------------------------------------------------------------#
 .text
 	.globl main
