@@ -4,7 +4,6 @@
 	MaxRandom: .word 0
 	tempString: .word 0
 	ChuCaiDoan: .word 0
-	TuCanDoan: .word 0
 	choice: .word 0
 	MENU: .asciiz "MENU"
 	playgame: .asciiz "1. Choi game"
@@ -26,17 +25,20 @@
 	thanhvien4: .asciiz "18120598 - Huynh Gia Toai"
 	nhapluachonsai: .asciiz "Vui long chi nhap so tu 1 den 4. Xin vui long nhap lai."
 	inHANGMAN: .asciiz "HANGMAN"
+	inAVAIL: .asciiz "AVAILABLE LETTERS"
 	pressany: .asciiz "Press any key to continue..."
+	test: .asciiz "ABC"
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
-	InHangMan1Dong1: .asciiz "__________\n"
-	InHangMan1Dong2: .asciiz "|/       |\n"
-	InHangMan1Dong3: .asciiz "|         \n"
-	InHangMan2Dong3: .asciiz "|        O\n"
-	InHangMan3Dong4: .asciiz "|       /\n"
-	InHangMan4Dong4: .asciiz "|       /|\n"
-	InHangMan5Dong4: .asciiz "|       /|\\\n"
-	InHangMan7Dong5: .asciiz "|       / \\\n"
+	InHangMan1Dong1: .asciiz "__________"
+	InHangMan1Dong2: .asciiz "|/       |"
+	InHangMan1Dong3: .asciiz "|         "
+	InHangMan2Dong3: .asciiz "|        O"
+	InHangMan3Dong4: .asciiz "|       /"
+	InHangMan4Dong4: .asciiz "|       /|"
+	InHangMan5Dong4: .asciiz "|       /|\\"
+	InHangMan7Dong5: .asciiz "|       / \\"
+	MotDongKhoangTrong: .asciiz "|                                                |"
 	vien: .asciiz "\n+------------------------------------------------+\n"
 	res: .asciiz ""
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
@@ -78,25 +80,16 @@ MainMenu:
 	li $a1,0
 	li $a2,0
 	jal _InChu
-	li $v0,4
-	la $a0,endline
-	syscall
 	# In huong dan choi
 	la $a0,hdsd
 	li $a1,0
 	li $a2,0
 	jal _InChu
-	li $v0,4
-	la $a0,endline
-	syscall
 	# In thanh vien
 	la $a0,thanhvien
 	li $a1,0
 	li $a2,0
 	jal _InChu
-	li $v0,4
-	la $a0,endline
-	syscall
 	# In thoat
 	la $a0,thoat
 	li $a1,0
@@ -143,10 +136,11 @@ PLAYGAME.playagain:
 			li $a2,1
 			jal _InChu
 			#In Hangman - WIP
-			li $a0,7
+			li $a0,5
 			jal _InHangMan
 			# Cac ki tu doan cua nguoi dung chua trong s3
-			li $s3,0
+			li $s3,'A'
+			# In cac chu cai con lai
 			
 		
 		j MainMenu
@@ -163,33 +157,21 @@ HUONGDANCHOI:
 	li $a1,0
 	li $a2,0
 	jal _InChu
-	li $v0,4
-	la $a0,endline
-	syscall
 	# In huongdan 2
 	la $a0,huongdan2
 	li $a1,0
 	li $a2,0
 	jal _InChu
-	li $v0,4
-	la $a0,endline
-	syscall
 	# In huongdan 3
 	la $a0,huongdan3
 	li $a1,0
 	li $a2,0
 	jal _InChu
-	li $v0,4
-	la $a0,endline
-	syscall
 	# In huongdan 4
 	la $a0,huongdan4
 	li $a1,0
 	li $a2,0
 	jal _InChu
-	la $v0,4
-	la $a0,endline
-	syscall
 	# In huongdan 5
 	la $a0,huongdan5
 	li $a1,0
@@ -213,25 +195,16 @@ THANHVIEN:
 	li $a1,0
 	li $a2,0
 	jal _InChu
-	li $v0,4
-	la $a0,endline
-	syscall
 	# In thanhvien 2
 	la $a0,thanhvien2
 	li $a1,0
 	li $a2,0
 	jal _InChu
-	li $v0,4
-	la $a0,endline
-	syscall
 	# In thanhvien 3
 	la $a0,thanhvien3
 	li $a1,0
 	li $a2,0
 	jal _InChu
-	li $v0,4
-	la $a0,endline
-	syscall
 	# In thanhvien 4
 	la $a0,thanhvien4
 	li $a1,0
@@ -248,6 +221,7 @@ EXIT:   # ket thuc chuong trinh
 	li $v0,10
 	syscall
 
+
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
 
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
@@ -255,6 +229,12 @@ _InHangMan: #Ham nhan vao 1 so #$a0 tu 1->7 va in ra hinh Hangman treo co tuong 
 #Dau thu tuc:
 	addi $sp,$sp,-32
 	sw $ra,($sp)
+	sw $a1,4($sp)
+	sw $a2,8($sp)
+	#Truyen vao hai tham so mac dinh de khong in vien tren va vien duoi cho cac Hangman
+	li $a1,0
+	li $a2,0
+
 	beq $a0,7,InHangMan.7
 	beq $a0,6,InHangMan.6
 	beq $a0,5,InHangMan.5
@@ -262,155 +242,156 @@ _InHangMan: #Ham nhan vao 1 so #$a0 tu 1->7 va in ra hinh Hangman treo co tuong 
 	beq $a0,3,InHangMan.3
 	beq $a0,2,InHangMan.2
 	beq $a0,1,InHangMan.1
+	beqz $a0,InMotDongKhoangTrong
 
-#Cuoi thu tuc:
-	lw $ra,($sp)
-	addi $sp,$sp,32
-	jr $ra
-#Ket thuc:
-_InHangMang.KetThuc:
-	li $v0,10
-	syscall
 InHangMan.1:
 	la $a0,InHangMan1Dong1
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong2
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong3
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong3
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong3
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong3
-	li $v0,4
-	syscall
-	j _InHangMang.KetThuc
+	la $a2,1
+	jal _InChu
+	j _InHangMan.KetThuc
 InHangMan.2:
 	la $a0,InHangMan1Dong1
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong2
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan2Dong3
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong3
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong3
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong3
-	li $v0,4
-	syscall
-	j _InHangMang.KetThuc
+	la $a2,1
+	jal _InChu
+	j _InHangMan.KetThuc
 InHangMan.3:
 	la $a0,InHangMan1Dong1
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong2
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan2Dong3
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan3Dong4
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong3
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong3
-	li $v0,4
-	syscall
-	j _InHangMang.KetThuc
+	la $a2,1
+	jal _InChu
+	j _InHangMan.KetThuc
 InHangMan.4:
 	la $a0,InHangMan1Dong1
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong2
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan2Dong3
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan4Dong4
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong3
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong3
-	li $v0,4
-	syscall
-	j _InHangMang.KetThuc
+	la $a2,1
+	jal _InChu
+	j _InHangMan.KetThuc
 InHangMan.5:
 	la $a0,InHangMan1Dong1
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong2
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan2Dong3
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan5Dong4
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong3
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong3
-	li $v0,4
-	syscall
-	j _InHangMang.KetThuc
+	la $a2,1
+	jal _InChu
+	j _InHangMan.KetThuc
 InHangMan.6:
 	la $a0,InHangMan1Dong1
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong2
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan2Dong3
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan5Dong4
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan3Dong4
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong3
-	li $v0,4
-	syscall
-	j _InHangMang.KetThuc
+	la $a2,1
+	jal _InChu
+	j _InHangMan.KetThuc
 InHangMan.7:
 	la $a0,InHangMan1Dong1
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong2
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan2Dong3
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan5Dong4
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan7Dong5
-	li $v0,4
-	syscall
+	jal _InChu
 	la $a0,InHangMan1Dong3
+	la $a2,1
+	jal _InChu
+	j _InHangMan.KetThuc
+InMotDongKhoangTrong:
+	la $a0,MotDongKhoangTrong
 	li $v0,4
 	syscall
-	j _InHangMang.KetThuc
+	la $a0,endline
+	li $v0,4
+	syscall
+	la $a0,MotDongKhoangTrong
+	li $v0,4
+	syscall
+	la $a0,endline
+	li $v0,4
+	syscall
+	la $a0,MotDongKhoangTrong
+	li $v0,4
+	syscall
+	la $a0,endline
+	li $v0,4
+	syscall
+	la $a0,MotDongKhoangTrong
+	li $v0,4
+	syscall
+	la $a0,endline
+	li $v0,4
+	syscall
+	la $a0,MotDongKhoangTrong
+	li $v0,4
+	syscall
+	la $a0,endline
+	li $v0,4
+	syscall
+	la $a0,MotDongKhoangTrong
+	li $v0,4
+	syscall
+	j _InHangMan.KetThuc
+
+#Cuoi thu tuc:
+_InHangMan.KetThuc:
+	lw $ra,($sp)
+	lw $a1,4($sp)
+	lw $a2,8($sp)
+	addi $sp,$sp,32
+	jr $ra
 #----------------------------------------------------------------------
 _InChuCai: #void InChuCai(string chucaidoan, char tu, char den)
 #$a0: chucaidoan, $s1: tu, $s2: den
@@ -476,8 +457,6 @@ _InChuCai.Lap:
 	lw $t1,28($sp)
 	addi $sp,$sp,32
 	jr $ra
-#Ket thuc
-	j _KetThuc
 	
 _Tim: #Ham nhan vao 1 chuoi va 1 ky tu, tra ve vi tri dau tien cua ky tu trong chuoi do duoc tim thay, neu khong tim thay return -1
 #$a0: ky tu, $a1: chuoi, $v0: vi tri
@@ -607,7 +586,7 @@ _InChu: #Ham in ra 1 chuoi dang |          aaaa         |
 	#Xac dinh khoang trong co do lon bao nhieu
 	move $a0,$a3
 	jal _StringLength #Xac dinh do dai cua input
-	
+
 	li $t0,2
 	div $v0,$t0
 	mflo $t1 #t3 la do dai cua khoang trong
@@ -649,9 +628,14 @@ _InChu.InKhoangTrong2:
 	la $a0,'|'
 	li $v0,11
 	syscall
-	
+
+       #In vien 2
 	la $a0,vien
 	beq $a2,1,_InChu.InVien2
+	#In ky tu xuong dong
+	la $a0,'\n'
+	li $v0,11
+	syscall
 	_InChu.InVien2.TiepTuc:
 #Cuoi thu tuc:
 	lw $ra,($sp)
@@ -698,11 +682,9 @@ _StringLength.Loop:
 	lw $ra,($sp)
 	lw $t0,4($sp)
 	addi $sp,$sp,32
+_KetThuc:
 	jr $ra
 
-	_KetThuc:
-	li $v0,10
-	syscall
 
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 
