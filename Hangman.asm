@@ -665,6 +665,7 @@ _InChu.VuotGioiHan:
 	li $v0,4
 	syscall
 	j _InChu.VuotGioiHan.TiepTuc
+
 _StringLength: #Ham tra ve do dai 1 string, $a0: chuoi, $v0: do dai chuoi
 #Dau thu tuc
 	addi $sp,$sp,-32
@@ -686,7 +687,6 @@ _StringLength.Loop:
 _KetThuc:
 	jr $ra
 
-
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 #--------------------------------------------------------------------TUNG---------------------------------------------------------------------#
 _compare:
@@ -697,10 +697,9 @@ _compare:
 	sw $t1,8($sp) #do dai cua &a1
 	sw $t2,12($sp)
 	sw $t3,16($sp) #dia chi cua a0
-	sw $t4,20($sp) #dia chi cuar a1
+	sw $t4,20($sp) #dia chi cua a1
 	sw $t5,24($sp) #Bien dem
-<<<<<<< HEAD
-=======
+
 
 #Khoi tao
 	jal _StringLength
@@ -713,36 +712,13 @@ _compare:
 	
 	li $t5,0
 	li $v0,1
-#Than thu tuc
-bne $t0,$t1,kl1
-_compare.loop:
-	subu $t1, $t5,$t0
-	bgez $t1,kt
-	lb $t3,($a0)
-	lb $t4,($t2)
-	addi $a0,$a0,1
-	addi $t2,$t2,1
-	addi $t5,$t5,1
-	bne $t3,$t4,kl1
-	j _compare.loop
->>>>>>> Tuan
 
-#Khoi tao
-	jal _StringLength
-	move $t0,$v0 #do dai cua $a0
-	
-	move $t2,$a0 #$t2=#$a0
-	move $a0,$a1 #$a0=$a1
-	jal _StringLength
-	move $t1,$v0 #do dai cua $a1
-	
-	li $t5,0
-	li $v0,1
 #Than thu tuc
-bne $t0,$t1,kl1
+       bne $t0,$t1,kl1
+    
 _compare.loop:
 	subu $t1, $t5,$t0
-	bgez $t1,kt
+	bgez $t1, kt
 	lb $t3,($a0)
 	lb $t4,($t2)
 	addi $a0,$a0,1
@@ -751,25 +727,9 @@ _compare.loop:
 	bne $t3,$t4,kl1
 	j _compare.loop
 
-
 kl1:
 	li $v0,0 #$a0!=$$a1	
-kt:
-#Cuoi thu tuc
-	lw $ra,($sp)
-	lw $t0,4($sp) 
-	lw $t1,8($sp) 
-	lw $t2,12($sp)
-	lw $t3,16($sp) 
-	lw $t4,20($sp) 
-	lw $t5,24($sp) 
-	
-	addi $sp,$sp,32
-	jr $ra
-#--------------------------------------------------------------------TUNG---------------------------------------------------------------------#
 
-kl1:
-	li $v0,0 #$a0!=$$a1	
 kt:
 #Cuoi thu tuc
 	lw $ra,($sp)
@@ -1023,7 +983,6 @@ _Question.Get.Question.I.EndLoop:
 
 	jr	$ra
 
-#--------------------------------------------------------------------TUAN---------------------------------------------------------------------#
 #Lay ra so nguoi choi trong file diem. Nhan vao $a0 la noi dung tho cua file diem, tra ve $v0 la so nguoi dang int
 _Score.Get.N:
 	addi	$sp, $sp, -20
