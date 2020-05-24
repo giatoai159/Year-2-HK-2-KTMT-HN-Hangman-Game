@@ -5,6 +5,10 @@
 	tempString: .word 0
 	ChuCaiDoan: .word 0
 	choice: .word 0
+	x: .word 0
+	y: .word 0
+	tries: .word 0
+	win: .word 0
 	MENU: .asciiz "MENU"
 	playgame: .asciiz "1. Choi game"
 	hdsd: .asciiz "2. Huong dan choi"
@@ -31,6 +35,7 @@
 	hint: .asciiz "Hint: "
 	yourscorerightnowis: .asciiz "Your score right now is: "
 	nhapluachondoanchuhaynguyentu: .asciiz "Ban muon doan 1 ki tu hay nguyen tu?\n1. Ki tu\n2. Nguyen tu"
+	guesstext: .asciiz "Guess --> "
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 	InHangMan1Dong1: .asciiz "__________"
@@ -131,7 +136,11 @@ PLAYGAME.playagain:
 		# Lay answer, suggestion
 		jal _Question.Get.Question.I 
 		li $t2,0 # tries = 0
+		sw $t2,tries
 		li $t3,0 # win = 0
+		sw $t3,win
+		li $s3,0
+		sw $s3,ChuCaiDoan # Cac ki tu doan cua nguoi dung chua trong s3
 		PLAYGAME.Loop.Playing:
 			#In HANGMAN
 			la $a0,inHANGMAN
@@ -141,9 +150,6 @@ PLAYGAME.playagain:
 			#In Hangman - WIP
 			li $a0,0
 			jal _InHangMan
-			# Cac ki tu doan cua nguoi dung chua trong s3
-			li $s3,0
-			sw $s3,ChuCaiDoan
 			# In cac chu cai con lai
 			la $a0,ChuCaiDoan
 			jal _InChuCaiConLai
@@ -195,6 +201,38 @@ PLAYGAME.playagain:
 			beq $t4,2,PLAYGAME.Loop.Playing.DoanNguyenTu
 			j PLAYGAME.Loop.Playing.NhapSai
 				PLAYGAME.Loop.Playing.DoanKiTu:
+					# In Guess -->
+					li $v0,4
+					la $a0,guesstext
+					syscall
+					# Nhan ki tu
+					li $v0,12
+					syscall
+					# to upper
+					addi $v0,$v0,-32
+					# luu ki tu nhap vao x
+					sw $v0,x
+					# check xem ki tu da doan chua
+					la $a0,x
+					la $a1,ChuCaiDoan
+					jal _Tim
+					bne $v0,1,CongVaoChuCaiDoan
+					j PLAYGAME.Loop.Playing.DoanKiTu
+					CongVaoChuCaiDoan:
+					la $a0,x
+					la $t5,ChuCaiDoan
+					move $a1,$t5
+					jal _CongKyTu
+					move $t5,$v0
+					move $a0,$t5
+					li $v0,4
+					syscall
+					sw $v0,ChuCaiDoan
+					# Tries
+
+					# Loop
+					j PLAYGAME.Loop.Playing
+					
 				PLAYGAME.Loop.Playing.DoanNguyenTu:
 		j MainMenu
 LEADERBOARD:
