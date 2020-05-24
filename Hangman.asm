@@ -37,8 +37,9 @@
 	InHangMan4Dong4: .asciiz "|       /|"
 	InHangMan5Dong4: .asciiz "|       /|\\"
 	InHangMan7Dong5: .asciiz "|       / \\"
-	MotDongKhoangTrong: .asciiz "|                                                |\n"
-	vien: .asciiz "\n+------------------------------------------------+\n"
+	MotDongKhoangTrong: .asciiz "\n|                                                |\n"
+	VienTren: .asciiz "+------------------------------------------------+\n"
+	VienDuoi: .asciiz "\n+------------------------------------------------+\n"
 	res: .asciiz ""
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 #--------------------------------------------------------------------TUAN---------------------------------------------------------------------#
@@ -557,7 +558,7 @@ _InChu: #Ham in ra 1 chuoi dang |          aaaa         |
 	sw $a3,24($sp)
 #Than thu tuc
 	move $a3,$a0
-	la $a0,vien
+	la $a0,VienTren
 	beq $a1,1,_InChu.InVien1
 	_InChu.InVien1.TiepTuc:
 	#In dau |
@@ -611,7 +612,7 @@ _InChu.InKhoangTrong2:
 	li $v0,11
 	syscall
 
-	la $a0,vien
+	la $a0,VienDuoi
 	beq $a2,1,_InChu.InVien2
 
 	#In ky tu xuong dong
