@@ -140,7 +140,8 @@ PLAYGAME.playagain:
 			# Cac ki tu doan cua nguoi dung chua trong s3
 			li $s3,'A'
 			# In cac chu cai con lai
-			
+			move $a0,$s3
+			jal _InChuCaiConLai
 		
 		j MainMenu
 LEADERBOARD:
@@ -149,11 +150,11 @@ HUONGDANCHOI:
 	# In HUONGDANCHOI
 	la $a0,inHUONGDANCHOI
 	li $a1,1
-	li $a2,1
+	li $a2,0
 	jal _InChu
 	# In huongdan 1
 	la $a0,huongdan1
-	li $a1,0
+	li $a1,1
 	li $a2,0
 	jal _InChu
 	# In huongdan 2
@@ -187,11 +188,11 @@ THANHVIEN:
 	# In THANHVIEN
 	la $a0,inTHANHVIEN
 	li $a1,1
-	li $a2,1
+	li $a2,0
 	jal _InChu
 	# In thanhvien 1
 	la $a0,thanhvien1
-	li $a1,0
+	li $a1,1
 	li $a2,0
 	jal _InChu
 	# In thanhvien 2
@@ -224,7 +225,7 @@ EXIT:   # ket thuc chuong trinh
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
 
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
-_InHangMan: #Ham nhan vao 1 so #$a0 tu 1->7 va in ra hinh Hangman treo co tuong ung
+_InHangMan:
 #Dau thu tuc:
 	addi $sp,$sp,-32
 	sw $ra,($sp)
@@ -233,7 +234,7 @@ _InHangMan: #Ham nhan vao 1 so #$a0 tu 1->7 va in ra hinh Hangman treo co tuong 
 	#Truyen vao hai tham so mac dinh de khong in vien tren va vien duoi cho cac Hangman
 	li $a1,0
 	li $a2,0
-
+	
 	beq $a0,7,InHangMan.7
 	beq $a0,6,InHangMan.6
 	beq $a0,5,InHangMan.5
@@ -243,6 +244,15 @@ _InHangMan: #Ham nhan vao 1 so #$a0 tu 1->7 va in ra hinh Hangman treo co tuong 
 	beq $a0,1,InHangMan.1
 	beqz $a0,InMotDongKhoangTrong
 
+#Cuoi thu tuc:
+	lw $ra,($sp)
+	lw $a1,4($sp)
+	lw $a2,8($sp)
+	addi $sp,$sp,32
+#Ket thuc:
+_InHangMan.KetThuc:
+	li $v0,10
+	syscall
 InHangMan.1:
 	la $a0,InHangMan1Dong1
 	jal _InChu
@@ -255,7 +265,6 @@ InHangMan.1:
 	la $a0,InHangMan1Dong3
 	jal _InChu
 	la $a0,InHangMan1Dong3
-	la $a2,1
 	jal _InChu
 	j _InHangMan.KetThuc
 InHangMan.2:
@@ -270,7 +279,6 @@ InHangMan.2:
 	la $a0,InHangMan1Dong3
 	jal _InChu
 	la $a0,InHangMan1Dong3
-	la $a2,1
 	jal _InChu
 	j _InHangMan.KetThuc
 InHangMan.3:
@@ -285,7 +293,6 @@ InHangMan.3:
 	la $a0,InHangMan1Dong3
 	jal _InChu
 	la $a0,InHangMan1Dong3
-	la $a2,1
 	jal _InChu
 	j _InHangMan.KetThuc
 InHangMan.4:
@@ -300,7 +307,6 @@ InHangMan.4:
 	la $a0,InHangMan1Dong3
 	jal _InChu
 	la $a0,InHangMan1Dong3
-	la $a2,1
 	jal _InChu
 	j _InHangMan.KetThuc
 InHangMan.5:
@@ -315,7 +321,6 @@ InHangMan.5:
 	la $a0,InHangMan1Dong3
 	jal _InChu
 	la $a0,InHangMan1Dong3
-	la $a2,1
 	jal _InChu
 	j _InHangMan.KetThuc
 InHangMan.6:
@@ -330,7 +335,6 @@ InHangMan.6:
 	la $a0,InHangMan3Dong4
 	jal _InChu
 	la $a0,InHangMan1Dong3
-	la $a2,1
 	jal _InChu
 	j _InHangMan.KetThuc
 InHangMan.7:
@@ -345,57 +349,43 @@ InHangMan.7:
 	la $a0,InHangMan7Dong5
 	jal _InChu
 	la $a0,InHangMan1Dong3
-	la $a2,1
 	jal _InChu
 	j _InHangMan.KetThuc
 InMotDongKhoangTrong:
 	la $a0,MotDongKhoangTrong
 	li $v0,4
 	syscall
-	la $a0,endline
-	li $v0,4
-	syscall
-	la $a0,MotDongKhoangTrong
-	li $v0,4
-	syscall
-	la $a0,endline
-	li $v0,4
-	syscall
-	la $a0,MotDongKhoangTrong
-	li $v0,4
-	syscall
-	la $a0,endline
-	li $v0,4
-	syscall
-	la $a0,MotDongKhoangTrong
-	li $v0,4
-	syscall
-	la $a0,endline
-	li $v0,4
-	syscall
-	la $a0,MotDongKhoangTrong
-	li $v0,4
-	syscall
-	la $a0,endline
-	li $v0,4
-	syscall
-	la $a0,MotDongKhoangTrong
-	li $v0,4
-	syscall
 	j _InHangMan.KetThuc
-
-#Cuoi thu tuc:
-_InHangMan.KetThuc:
+#----------------------------------------------------------------------
+_InChuCaiConLai: #$a0: string chucaidadoan
+#Dau thu tuc
+	addi $sp,$sp,-32
+	sw $ra,($sp)
+#Khoi tao
+	move $a3,$a0
+#Than thu tuc
+	li $a1,1
+	li $a2,1
+	la $a0,inAVAIL
+	jal _InChu
+	move $a0,$a3
+	li $a1,'A'
+	li $a2,'M'
+	jal _InChuCai
+	move $a0,$a3
+	li $a1,'N'
+	li $a2,'Z'
+	jal _InChuCai
+#Cuoi thu tuc
 	lw $ra,($sp)
-	lw $a1,4($sp)
-	lw $a2,8($sp)
 	addi $sp,$sp,32
+#Ket thuc
 	jr $ra
 #----------------------------------------------------------------------
 _InChuCai: #void InChuCai(string chucaidoan, char tu, char den)
-#$a0: chucaidoan, $s1: tu, $s2: den
+#$a0: chucaidoan, $a1: tu, $a2: den
 #Dau thu tuc:
-	addi $sp,$sp,-32
+	addi $sp,$sp,-36
 	sw $ra,($sp)
 	sw $s7,4($sp)
 	sw $s0,8($sp)
@@ -404,8 +394,10 @@ _InChuCai: #void InChuCai(string chucaidoan, char tu, char den)
 	sw $t0,20($sp)
 	sw $t2,24($sp)
 	sw $t1,28($sp)
+	sw $s3,32($sp)
 #Khoi tao
 	move $s0,$a0 #string ban dau
+	move $s3,$a0 #string ban dau
 	move $s1,$a1
 	move $s2,$a2
 	move $t0,$a1 #bien i
@@ -413,28 +405,25 @@ _InChuCai: #void InChuCai(string chucaidoan, char tu, char den)
 #Than thu tuc
 _InChuCai.Lap:
 	move $a0,$t0
-	la $a1,($s0)
+	la $a1,($s3)
 	jal _Tim
 	move $t2,$v0
 
+	bne $t2,-1,InChuCai.CongKyTu2
 	beq $t2,-1,InChuCai.CongKyTu1
-	InChuCai.CongKyTu.TiepTuc1:
 
-	beq $t2,-1,InChuCai.CongKyTu2
-	InChuCai.CongKyTu.TiepTuc2:
+	InChuCai.CongKyTu.TiepTuc:
 
-	beq $t2,-1,InChuCai.CongKyTu5
-	InChuCai.CongKyTu.TiepTuc5:
+	li $a0,' '
+	move $a1,$s7
+	jal _CongKyTu
+	move $s7,$v0
 
-	bne $t2,-1,InChuCai.CongKyTu3
-	InChuCai.CongKyTu.TiepTuc3:
-
-	bne $t2,-1,InChuCai.CongKyTu4
-	InChuCai.CongKyTu.TiepTuc4:
-
-	bne $t2,-1,InChuCai.CongKyTu6
-	InChuCai.CongKyTu.TiepTuc6:
-
+	li $a0,' '
+	move $a1,$s7
+	jal _CongKyTu
+	move $s7,$v0
+	
 	addi $t0,$t0,1
 	addi $s0,$s0,1
 	sub $t1,$s2,$t0 #$t1=$s2-$t0
@@ -445,6 +434,17 @@ _InChuCai.Lap:
 	li $a1,0
 	li $a2,0
 	jal _InChu
+	
+	#Xoa bo nho dem cua $s7 va tra ve vi tri con tro bat dau cua $s7
+	li $t2,0
+_s7.Lap:
+	lb $t1,($s7)
+	sb $t2,($s7)
+	addi $s7,$s7,1
+	addi $t0,$t0,1
+	bne $t1,'\0',_s7.Lap
+	sub $s7,$s7,$t0
+	#addi $s7,$s7,-1
 #Cuoi thu tuc
 	lw $ra,($sp)
 	lw $s7,4($sp)
@@ -454,9 +454,12 @@ _InChuCai.Lap:
 	lw $t0,20($sp)
 	lw $t2,24($sp)
 	lw $t1,28($sp)
-	addi $sp,$sp,32
+	lw $s3,32($sp)
+	addi $sp,$sp,36
+#Ket thuc
 	jr $ra
 	
+#----------------------------------------------------------------------
 _Tim: #Ham nhan vao 1 chuoi va 1 ky tu, tra ve vi tri dau tien cua ky tu trong chuoi do duoc tim thay, neu khong tim thay return -1
 #$a0: ky tu, $a1: chuoi, $v0: vi tri
 #Dau thu tuc
@@ -488,43 +491,20 @@ _Tim.Lap.TraVe:
 	move $v0,$t0
 	addi $v0,$v0,-1
 	j _Tim.Lap.TraVe.TiepTuc
-
+#----------------------------------------------------------------------
 InChuCai.CongKyTu1:
 	move $a0,$t0
 	move $a1,$s7
 	jal _CongKyTu
 	move $s7,$v0
-	j InChuCai.CongKyTu.TiepTuc1
+	j InChuCai.CongKyTu.TiepTuc
 InChuCai.CongKyTu2:
 	li $a0,' '
 	move $a1,$s7
 	jal _CongKyTu
 	move $s7,$v0
-	j InChuCai.CongKyTu.TiepTuc2
-InChuCai.CongKyTu5:
-	li $a0,' '
-	move $a1,$s7
-	jal _CongKyTu
-	move $s7,$v0
-	j InChuCai.CongKyTu.TiepTuc5
-InChuCai.CongKyTu3:
-	li $a0,' '
-	move $a1,$s7
-	jal _CongKyTu
-	move $s7,$v0
-	j InChuCai.CongKyTu.TiepTuc3
-InChuCai.CongKyTu4:
-	li $a0,' '
-	move $a1,$s7
-	jal _CongKyTu
-	move $s7,$v0
-	j InChuCai.CongKyTu.TiepTuc4
-InChuCai.CongKyTu6:
-	li $a0,' '
-	move $a1,$s7
-	jal _CongKyTu
-	move $s7,$v0
-	j InChuCai.CongKyTu.TiepTuc6
+	j InChuCai.CongKyTu.TiepTuc
+#----------------------------------------------------------------------
 _CongKyTu: #$a0: ky tu can cong, $a1: chuoi ban dau truyen vao
 #Dau thu tuc
 	addi $sp,$sp,-32
@@ -585,7 +565,7 @@ _InChu: #Ham in ra 1 chuoi dang |          aaaa         |
 	#Xac dinh khoang trong co do lon bao nhieu
 	move $a0,$a3
 	jal _StringLength #Xac dinh do dai cua input
-
+	
 	li $t0,2
 	div $v0,$t0
 	mflo $t1 #t3 la do dai cua khoang trong
@@ -628,16 +608,15 @@ _InChu.InKhoangTrong2:
 	li $v0,11
 	syscall
 
-       #In vien 2
 	la $a0,vien
 	beq $a2,1,_InChu.InVien2
+	_InChu.InVien2.TiepTuc:
+
 	#In ky tu xuong dong
 	la $a0,'\n'
 	li $v0,11
 	syscall
-	_InChu.InVien2.TiepTuc:
 #Cuoi thu tuc:
-	lw $ra,($sp)
 	lw $ra,($sp)
 	lw $t0,4($sp)
 	lw $t1,8($sp)
@@ -646,9 +625,8 @@ _InChu.InKhoangTrong2:
 	lw $t4,20($sp)
 	lw $a3,24($sp)
 	addi $sp,$sp,32
-	jr $ra
 #Ket thuc
-	j _KetThuc
+	jr $ra
 _InChu.InVien1:
 	li $v0,4
 	syscall
@@ -663,6 +641,7 @@ _InChu.VuotGioiHan:
 	li $v0,4
 	syscall
 	j _InChu.VuotGioiHan.TiepTuc
+#----------------------------------------------------------------------
 _StringLength: #Ham tra ve do dai 1 string, $a0: chuoi, $v0: do dai chuoi
 #Dau thu tuc
 	addi $sp,$sp,-32
@@ -681,9 +660,7 @@ _StringLength.Loop:
 	lw $ra,($sp)
 	lw $t0,4($sp)
 	addi $sp,$sp,32
-_KetThuc:
 	jr $ra
-
 
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 #--------------------------------------------------------------------TUNG---------------------------------------------------------------------#
