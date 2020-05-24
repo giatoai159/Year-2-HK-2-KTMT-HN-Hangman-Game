@@ -17,18 +17,24 @@
 	int_string_reverse: .space 12
 	int_string_res: .space 12
 
-	array: .space 0
+	new_score: .space 500
 	score_arr_int: .word 0:11
 	score_arr_string_pointer: .word 0:11
 	score_arr_string: .space 1000000
 
+	player_name: .asciiz "Toai"
 
 #Ham doc file
 #Nhan vao $a0 la duong dan file, $a1 la flag voi 0: read, 1: write, $a2 la mode (auto ignored)
 .text
 	.globl main
 main:
-	la	$a0, test
+	li	$a0, 10
+	la	$a1, player_name
+	li	$a2, 3
+	jal	_Get.New_Score
+
+	la	$a0, new_score
 	jal	_Score.Process
 
 	j 	Exit
@@ -621,13 +627,6 @@ _Score.Process.End:
 	li	$v0, 16
 	syscall
 
-	#lw 	$a0, ($sp)
-	#lw 	$s0, 4($sp)
-	#lw 	$t0, 8($sp)
-	#lw 	$t1, 12($sp)
-	#lw 	$ra, 16($sp)
-	#addi 	$sp, $sp, 20
-
 	lw 	$a0, ($sp)
 	lw 	$a1, 4($sp)
 	lw 	$a2, 8($sp)
@@ -684,7 +683,7 @@ _StringLength.Loop:
 	jr 	$ra
 
 
-#Ham nhan vao a0 la so int, tra ve $v0 la chuoi
+#Ham nhan vao a0 la so int, tra ve chuoi trong bien int_string_res
 _Convert_Int_To_String:
 	addi	$sp, $sp, -20
 	sw	$a0, ($sp)
@@ -779,8 +778,94 @@ _Reverse.End:
 
 	jr 	$ra
 
-	jr	$ra
+#Nhan vao #$a0 la diem, $a1 la ten, $a2 la level cua nguoi choi moi:
+_Get.New_Score:
+	addi	$sp, $sp, -24
+	sw 	$a0, ($sp)
+	sw	$a1, 8($sp)
+	sw	$a2, 12($sp)
+	sw	$s0, 16($sp)
+	sw	$t0, 20($sp)
+	sw	$ra, 24($sp)
 
+	la	$s0, new_score
+	
+	j	_Loop1.Prepare
+	
+_Loop1.Prepare:
+	jal 	_Convert_Int_To_String
+	la	$a0, int_string_res
+
+	j	_Loop1
+
+_Loop1:
+	lb	$t0, ($a0)
+	beq	$t0, $0, _Loop2.Prepare
+	
+	sb	$t0, ($s0)
+
+	addi	$s0, $s0, 1	
+	addi	$a0, $a0, 1
+	j	_Loop1
+
+_Loop2.Prepare:
+	li	$t0, '-'
+	sb	$t0, ($s0)
+
+	addi	$s0, $s0, 1
+
+	lw	$a0, 8($sp)
+
+	j	_Loop2
+
+_Loop2:
+	lb	$t0, ($a0)
+	beq	$t0, $0, _Loop3.Prepare
+	
+	sb	$t0, ($s0)
+
+	addi	$s0, $s0, 1	
+	addi	$a0, $a0, 1
+
+	j	_Loop2
+
+_Loop3.Prepare:
+	li	$t0, '-'
+	sb	$t0, ($s0)
+
+	addi	$s0, $s0, 1
+
+	lw	$a0, 12($sp)
+	jal	_Convert_Int_To_String
+
+	la	$a0, int_string_res
+
+	j	_Loop3
+
+_Loop3:
+	lb	$t0, ($a0)
+	beq	$t0, $0, _Get.New_Score.End
+	
+	sb	$t0, ($s0)
+
+	addi	$s0, $s0, 1	
+	addi	$a0, $a0, 1
+
+	j	_Loop3
+
+_Get.New_Score.End:
+	sb	$0, ($s0)
+
+	lw 	$a0, ($sp)
+	lw	$a1, 8($sp)
+	lw	$a2, 12($sp)
+	lw	$s0, 16($sp)
+	lw	$t0, 20($sp)
+	lw	$ra, 24($sp)
+	addi	$sp, $sp, 24
+
+	jr 	$ra
+	
 Exit:
 
 
