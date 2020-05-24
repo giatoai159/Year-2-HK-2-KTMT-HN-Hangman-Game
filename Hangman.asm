@@ -27,7 +27,6 @@
 	inHANGMAN: .asciiz "HANGMAN"
 	inAVAIL: .asciiz "AVAILABLE LETTERS"
 	pressany: .asciiz "Press any key to continue..."
-	inTYPEURGUESS: .asciiz "TYPE YOUR GUESS"
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 	InHangMan1Dong1: .asciiz "__________"
@@ -38,7 +37,7 @@
 	InHangMan4Dong4: .asciiz "|       /|"
 	InHangMan5Dong4: .asciiz "|       /|\\"
 	InHangMan7Dong5: .asciiz "|       / \\"
-	MotDongKhoangTrong: .asciiz "|                                                |"
+	MotDongKhoangTrong: .asciiz "|                                                |\n"
 	vien: .asciiz "\n+------------------------------------------------+\n"
 	res: .asciiz ""
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
@@ -139,17 +138,10 @@ PLAYGAME.playagain:
 			li $a0,0
 			jal _InHangMan
 			# Cac ki tu doan cua nguoi dung chua trong s3
-			li $s3,0
-			sw $s3,ChuCaiDoan
+			li $s3,'A'
 			# In cac chu cai con lai
-			la $a0,ChuCaiDoan
+			la $a0,MENU
 			jal _InChuCaiConLai
-			# In Type your guess
-			la $a0,inTYPEURGUESS
-			li $a1,1
-			li $a2,1
-			jal _InChu
-			# In chu va kiem tra win - WIP
 		
 		j MainMenu
 LEADERBOARD:
@@ -621,12 +613,12 @@ _InChu.InKhoangTrong2:
 
 	la $a0,vien
 	beq $a2,1,_InChu.InVien2
-	_InChu.InVien2.TiepTuc:
 
 	#In ky tu xuong dong
 	la $a0,'\n'
 	li $v0,11
 	syscall
+	_InChu.InVien2.TiepTuc:
 #Cuoi thu tuc:
 	lw $ra,($sp)
 	lw $t0,4($sp)
