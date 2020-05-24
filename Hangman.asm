@@ -27,6 +27,7 @@
 	inHANGMAN: .asciiz "HANGMAN"
 	inAVAIL: .asciiz "AVAILABLE LETTERS"
 	pressany: .asciiz "Press any key to continue..."
+	inTYPEURGUESS: .asciiz "TYPE YOUR GUESS"
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 	InHangMan1Dong1: .asciiz "__________"
@@ -138,10 +139,17 @@ PLAYGAME.playagain:
 			li $a0,0
 			jal _InHangMan
 			# Cac ki tu doan cua nguoi dung chua trong s3
-			li $s3,'A'
+			li $s3,0
+			sw $s3,ChuCaiDoan
 			# In cac chu cai con lai
-			la $a0,MENU
+			la $a0,ChuCaiDoan
 			jal _InChuCaiConLai
+			# In Type your guess
+			la $a0,inTYPEURGUESS
+			li $a1,1
+			li $a2,1
+			jal _InChu
+			# In chu va kiem tra win - WIP
 		
 		j MainMenu
 LEADERBOARD:
