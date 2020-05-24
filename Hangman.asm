@@ -59,10 +59,12 @@
 	int_string_reverse: .space 12
 	int_string_res: .space 12
 
-	array: .space 0
+	new_score: .space 500
 	score_arr_int: .word 0:11
 	score_arr_string_pointer: .word 0:11
 	score_arr_string: .space 1000000
+
+	player_name: .asciiz "Toai"
 #--------------------------------------------------------------------TUAN---------------------------------------------------------------------#
 .text
 	.globl main
@@ -697,6 +699,33 @@ _compare:
 	sw $t3,16($sp) #dia chi cua a0
 	sw $t4,20($sp) #dia chi cuar a1
 	sw $t5,24($sp) #Bien dem
+<<<<<<< HEAD
+=======
+
+#Khoi tao
+	jal _StringLength
+	move $t0,$v0 #do dai cua $a0
+	
+	move $t2,$a0 #$t2=#$a0
+	move $a0,$a1 #$a0=$a1
+	jal _StringLength
+	move $t1,$v0 #do dai cua $a1
+	
+	li $t5,0
+	li $v0,1
+#Than thu tuc
+bne $t0,$t1,kl1
+_compare.loop:
+	subu $t1, $t5,$t0
+	bgez $t1,kt
+	lb $t3,($a0)
+	lb $t4,($t2)
+	addi $a0,$a0,1
+	addi $t2,$t2,1
+	addi $t5,$t5,1
+	bne $t3,$t4,kl1
+	j _compare.loop
+>>>>>>> Tuan
 
 #Khoi tao
 	jal _StringLength
@@ -722,6 +751,22 @@ _compare.loop:
 	bne $t3,$t4,kl1
 	j _compare.loop
 
+
+kl1:
+	li $v0,0 #$a0!=$$a1	
+kt:
+#Cuoi thu tuc
+	lw $ra,($sp)
+	lw $t0,4($sp) 
+	lw $t1,8($sp) 
+	lw $t2,12($sp)
+	lw $t3,16($sp) 
+	lw $t4,20($sp) 
+	lw $t5,24($sp) 
+	
+	addi $sp,$sp,32
+	jr $ra
+#--------------------------------------------------------------------TUNG---------------------------------------------------------------------#
 
 kl1:
 	li $v0,0 #$a0!=$$a1	
@@ -1477,6 +1522,94 @@ _Reverse.End:
 	lw	$ra, 16($sp)
 
 	addi	$sp, $sp, 20
+
+	jr 	$ra
+
+#Nhan vao #$a0 la diem, $a1 la ten, $a2 la level cua nguoi choi moi:
+_Get.New_Score:
+	addi	$sp, $sp, -24
+	sw 	$a0, ($sp)
+	sw	$a1, 8($sp)
+	sw	$a2, 12($sp)
+	sw	$s0, 16($sp)
+	sw	$t0, 20($sp)
+	sw	$ra, 24($sp)
+
+	la	$s0, new_score
+	
+	j	_Loop1.Prepare
+	
+_Loop1.Prepare:
+	jal 	_Convert_Int_To_String
+	la	$a0, int_string_res
+
+	j	_Loop1
+
+_Loop1:
+	lb	$t0, ($a0)
+	beq	$t0, $0, _Loop2.Prepare
+	
+	sb	$t0, ($s0)
+
+	addi	$s0, $s0, 1	
+	addi	$a0, $a0, 1
+	j	_Loop1
+
+_Loop2.Prepare:
+	li	$t0, '-'
+	sb	$t0, ($s0)
+
+	addi	$s0, $s0, 1
+
+	lw	$a0, 8($sp)
+
+	j	_Loop2
+
+_Loop2:
+	lb	$t0, ($a0)
+	beq	$t0, $0, _Loop3.Prepare
+	
+	sb	$t0, ($s0)
+
+	addi	$s0, $s0, 1	
+	addi	$a0, $a0, 1
+
+	j	_Loop2
+
+_Loop3.Prepare:
+	li	$t0, '-'
+	sb	$t0, ($s0)
+
+	addi	$s0, $s0, 1
+
+	lw	$a0, 12($sp)
+	jal	_Convert_Int_To_String
+
+	la	$a0, int_string_res
+
+	j	_Loop3
+
+_Loop3:
+	lb	$t0, ($a0)
+	beq	$t0, $0, _Get.New_Score.End
+	
+	sb	$t0, ($s0)
+
+	addi	$s0, $s0, 1	
+	addi	$a0, $a0, 1
+
+	j	_Loop3
+
+_Get.New_Score.End:
+	sb	$0, ($s0)
+
+	lw 	$a0, ($sp)
+	lw	$a1, 8($sp)
+	lw	$a2, 12($sp)
+	lw	$s0, 16($sp)
+	lw	$t0, 20($sp)
+	lw	$ra, 24($sp)
+	addi	$sp, $sp, 24
 
 	jr 	$ra
 #--------------------------------------------------------------------TUAN---------------------------------------------------------------------#
