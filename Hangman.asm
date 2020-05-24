@@ -27,6 +27,10 @@
 	inHANGMAN: .asciiz "HANGMAN"
 	inAVAIL: .asciiz "AVAILABLE LETTERS"
 	pressany: .asciiz "Press any key to continue..."
+	inTYPEYOURGUESS: .asciiz "TYPE YOUR GUESS"
+	hint: .asciiz "Hint: "
+	yourscorerightnowis: .asciiz "Your score right now is: "
+	nhapluachondoanchuhaynguyentu: .asciiz "Ban muon doan 1 ki tu hay nguyen tu?\n1. Ki tu\n2. Nguyen tu"
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 	InHangMan1Dong1: .asciiz "__________"
@@ -38,7 +42,8 @@
 	InHangMan5Dong4: .asciiz "|       /|\\"
 	InHangMan7Dong5: .asciiz "|       / \\"
 	MotDongKhoangTrong: .asciiz "|                                                |\n"
-	vien: .asciiz "\n+------------------------------------------------+\n"
+	VienTren: .asciiz "+------------------------------------------------+\n"
+	VienDuoi: .asciiz "\n+------------------------------------------------+\n"
 	res: .asciiz ""
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 #--------------------------------------------------------------------TUAN---------------------------------------------------------------------#
@@ -112,7 +117,6 @@ PLAYGAME: # t0: Point , t1: Play again or not, t2: tries, t3: bool win or not, t
 PLAYGAME.playagain:
 	beq $t1,'y',PLAYGAME.Loop
 	beq $t1,'Y',PLAYGAME.Loop
-	li $t3,0 # win = 0
 	j LEADERBOARD
 	PLAYGAME.Loop:
 		# Get answer and hint
@@ -124,7 +128,7 @@ PLAYGAME.playagain:
 		li $v0,42 # Random tu 0 -> N - 1
 		syscall
 		addi $a0,$a0,1 # Cong so random cho 1 vi ta se lay so tu 1 -> N
-		# Lay answer, question
+		# Lay answer, suggestion
 		jal _Question.Get.Question.I 
 		li $t2,0 # tries = 0
 		li $t3,0 # win = 0
@@ -138,11 +142,60 @@ PLAYGAME.playagain:
 			li $a0,0
 			jal _InHangMan
 			# Cac ki tu doan cua nguoi dung chua trong s3
-			li $s3,'A'
+			li $s3,0
+			sw $s3,ChuCaiDoan
 			# In cac chu cai con lai
-			la $a0,MENU
+			la $a0,ChuCaiDoan
 			jal _InChuCaiConLai
-		
+			# In TYPE YOUR GUESS
+			la $a0,inTYPEYOURGUESS
+			li $a1,1
+			li $a2,1
+			jal _InChu
+			# In chu va kiem tra win
+			
+			# check win
+			# beq $t3,1,
+			# HINT
+			li $v0,4
+			la $a0,hint
+			syscall
+			li $v0,4
+			la $a0,suggestion
+			syscall
+			li $v0,4
+			la $a0,endline
+			syscall
+			# Score
+			li $v0,4
+			la $a0,yourscorerightnowis
+			syscall
+			li $v0,1
+			move $a0,$t0
+			syscall
+			li $v0,4
+			la $a0,endline
+			syscall
+			PLAYGAME.Loop.Playing.NhapSai:
+			# Select
+			li $v0,4
+			la $a0,nhapluachondoanchuhaynguyentu
+			syscall
+			li $v0,4
+			la $a0,endline
+			syscall
+			li $v0,4
+			la $a0,nhapluachon
+			syscall
+			# Choice
+			li $v0,5
+			syscall
+			move $t4,$v0 # move choice vao $t4
+			beq $t4,1,PLAYGAME.Loop.Playing.DoanKiTu
+			beq $t4,2,PLAYGAME.Loop.Playing.DoanNguyenTu
+			j PLAYGAME.Loop.Playing.NhapSai
+				PLAYGAME.Loop.Playing.DoanKiTu:
+				PLAYGAME.Loop.Playing.DoanNguyenTu:
 		j MainMenu
 LEADERBOARD:
 	j MainMenu
@@ -557,7 +610,7 @@ _InChu: #Ham in ra 1 chuoi dang |          aaaa         |
 	sw $a3,24($sp)
 #Than thu tuc
 	move $a3,$a0
-	la $a0,vien
+	la $a0,VienTren
 	beq $a1,1,_InChu.InVien1
 	_InChu.InVien1.TiepTuc:
 	#In dau |
@@ -611,7 +664,7 @@ _InChu.InKhoangTrong2:
 	li $v0,11
 	syscall
 
-	la $a0,vien
+	la $a0,VienDuoi
 	beq $a2,1,_InChu.InVien2
 
 	#In ky tu xuong dong
