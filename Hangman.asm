@@ -140,7 +140,7 @@ PLAYGAME.playagain:
 			# Cac ki tu doan cua nguoi dung chua trong s3
 			li $s3,'A'
 			# In cac chu cai con lai
-			move $a0,$s3
+			li $a0,'A'
 			jal _InChuCaiConLai
 		
 		j MainMenu
@@ -244,15 +244,6 @@ _InHangMan:
 	beq $a0,1,InHangMan.1
 	beqz $a0,InMotDongKhoangTrong
 
-#Cuoi thu tuc:
-	lw $ra,($sp)
-	lw $a1,4($sp)
-	lw $a2,8($sp)
-	addi $sp,$sp,32
-#Ket thuc:
-_InHangMan.KetThuc:
-	li $v0,10
-	syscall
 InHangMan.1:
 	la $a0,InHangMan1Dong1
 	jal _InChu
@@ -356,6 +347,14 @@ InMotDongKhoangTrong:
 	li $v0,4
 	syscall
 	j _InHangMan.KetThuc
+
+_InHangMan.KetThuc:
+#Cuoi thu tuc:
+	lw $ra,($sp)
+	lw $a1,4($sp)
+	lw $a2,8($sp)
+	addi $sp,$sp,32
+	jr $ra
 #----------------------------------------------------------------------
 _InChuCaiConLai: #$a0: string chucaidadoan
 #Dau thu tuc
@@ -467,6 +466,8 @@ _Tim: #Ham nhan vao 1 chuoi va 1 ky tu, tra ve vi tri dau tien cua ky tu trong c
 	sw $ra,($sp)
 	sw $t0,4($sp)
 	sw $t1,8($sp)
+	sw $a0,12($sp)
+	sw $a1,16($sp)
 	
 #Khai bao
 	li $v0,-1 #Ket qua tra ve
@@ -484,6 +485,8 @@ _Tim.Lap:
 	lw $ra,($sp)
 	lw $t0,4($sp)
 	lw $t1,8($sp)
+	lw $a0,12($sp)
+	lw $a1,16($sp)
 	addi $sp,$sp,32
 #Ket thuc
 	jr $ra
