@@ -135,12 +135,12 @@ PLAYGAME.playagain:
 			li $a2,1
 			jal _InChu
 			#In Hangman - WIP
-			li $a0,5
+			li $a0,0
 			jal _InHangMan
 			# Cac ki tu doan cua nguoi dung chua trong s3
 			li $s3,'A'
 			# In cac chu cai con lai
-			li $a0,'A'
+			la $a0,MENU
 			jal _InChuCaiConLai
 		
 		j MainMenu
