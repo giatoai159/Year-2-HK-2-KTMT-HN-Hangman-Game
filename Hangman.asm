@@ -36,7 +36,10 @@
 	nhapluachondoanchuhaynguyentu: .asciiz "Ban muon doan 1 ki tu hay nguyen tu?\n1. Ki tu\n2. Nguyen tu"
 	guesstext: .asciiz "Guess --> "
 	existed: .asciiz "\nKi tu ban doan da duoc doan roi. Xin doan ki tu khac.\n"
+	inWIN: .asciiz "WIN!"
+	inLOSE: .asciiz "LOSE"
 	invalidinput: .asciiz "\nKi tu nhap vao khong hop le. Xin vui long nhap lai ki tu khac.\n"
+	inPlayAgain: .asciiz "Play again? y/n"
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 	InHangMan1Dong1: .asciiz "__________"
@@ -150,7 +153,7 @@ PLAYGAME.playagain:
 			li $a2,1
 			jal _InChu
 			#In Hangman - WIP
-			li $a0,0
+			move $a0,$t2
 			jal _InHangMan
 			# In cac chu cai con lai
 			la $a0,ChuCaiDoan
@@ -161,9 +164,12 @@ PLAYGAME.playagain:
 			li $a2,1
 			jal _InChu
 			# In chu va kiem tra win
-			
+			la $a0,answer
+			la $a1,ChuCaiDoan
+			jal _InChuVaKiemTraWin
+			move $t3,$v0
 			# check win
-			# beq $t3,1,
+			beq $t3,1,PLAYGAME.Loop.Playing.Break
 			# HINT
 			li $v0,4
 			la $a0,hint
@@ -224,11 +230,11 @@ PLAYGAME.playagain:
 					# luu ki tu nhap vao s0: ki tu doan
 					move $s0,$v0
 					sw $s0,x
-					# check xem ki tu da doan chua _ WWWWWWIIIIIIPP
+					# check xem ki tu da doan chua 
 					move $a0,$s0
 					la $a1,ChuCaiDoan
 					jal _Tim
-
+					# Tim khong thay --> cong vao chu cai doan
 					beq $v0,-1,CongVaoChuCaiDoan
 					# In existed
 					li $v0,4
@@ -258,18 +264,90 @@ PLAYGAME.playagain:
 					li $v0,4
 					la $a0,endline
 					syscall
-					# print test
-					li $v0,4
-					la $a0,ChuCaiDoan
-					syscall
-
 					# Tries
-
+					la $a0,answer
+					la $v0,4
+					syscall
+					la $a0,endline
+					li $v0,4
+					syscall
+					la $a0,ChuCaiDoan
+					la $v0,4
+					syscall
+					#la $a0,answer
+					#la $a1,ChuCaiDoan
+					#jal _LanThuConLai
+					#########
+					#move $t2,$v0
 					# Loop
-					j PLAYGAME.Loop.Playing
-					
+					blt $t2,8, PLAYGAME.Loop.Playing
+					j PLAYGAME.Loop.Playing.Break
 				PLAYGAME.Loop.Playing.DoanNguyenTu:
+					li $v0,4
+					la $a0,answer
+					syscall
+					# In Guess -->
+					li $v0,4
+					la $a0,guesstext
+					syscall
+					# Nhap nguyen tu
+					li $v0,8
+					la $a0,ChuCaiDoan
+					li $a1,1000
+					syscall
+					# to upper
+					jal _toUpperString
+					
+					# compare ket qua
+					#move $a0,$v0
+					#lw $s0,answer
+					#move $a1,$s0
+					#jal _compare
+					#beq $v0,0,PLAYGAME.Loop.Playing.Break # --> Lose
+					#li $t3,1 # doan dung
+			PLAYGAME.Loop.Playing.Break:
+				beq $t3,1,PLAYGAME.Loop.Win
+				# LOSE branch 
+				# In LOSE
+				la $a0,inLOSE
+				li $a1,1
+				li $a2,1
+				jal _InChu
+				# Luu point vao file - WIP
+
+
+				# set point = 0
+				li $t0,0
+				# in Play again
+				la $a0,inPlayAgain
+				li $v0,4
+				syscall
+				# Nhap lua chon
+				li $v0,12
+				syscall
+				move $t1,$v0
+				j PLAYGAME.playagain
+				# WIN branch
+				PLAYGAME.Loop.Win:
+				# In WIN
+				la $a0,inWIN
+				li $a1,1
+				li $a2,1
+				jal _InChu
+				# add point
+				la $a0,answer
+				jal _StringLength
+				add $t0,$t0,$v0
+				# in Play again
+				la $a0,inPlayAgain
+				li $v0,4
+				syscall
+				# Nhap lua chon
+				li $v0,12
+				syscall
+				j PLAYGAME.playagain
 		j MainMenu
+
 LEADERBOARD:
 	j MainMenu
 HUONGDANCHOI:
@@ -347,7 +425,37 @@ EXIT:   # ket thuc chuong trinh
 	li $v0,10
 	syscall
 
+_toUpperString:
+#Dau thu tuc
+	addi $sp,$sp,-32
+	sw $ra,($sp)
+	sw $t0,4($sp)
+	sw $t1,8($sp)
+	sw $s0,12($sp)
+move $s0, $a0
+#Than thu tuc
+	#Khoi tao vong lap
+	li $t0, 0
+_toUpperString.loop:
+	lb $t1, ChuCaiDoan($t0)  
+	beq $t1, 0, _toUpperString.exit      
+	blt $t1, 'a', _toUpperString.not_lower 
+	bgt $t1, 'z', _toUpperString.not_lower 
+	sub $t1, $t1, 32  
+	sb $t1, ChuCaiDoan($t0) 
+_toUpperString.not_lower: 
+	addi $t0, $t0, 1
+	j _toUpperString.loop
+_toUpperString.exit:
+	move $v0, $s0  
 
+#Cuoi thu tuc
+	lw $ra,($sp)
+	lw $t0,4($sp)
+	lw $t1,8($sp)
+	lw $s0,12($sp)
+	addi $sp,$sp,32
+	jr $ra
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
 
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
@@ -388,13 +496,7 @@ _LanThuConLai.Lap:
 	bne $t0,$t2,_LanThuConLai.Lap
 	#Tra ve con tro o vi tri ban dau cho $s0,$s1
 	sub $s1,$s1,$t0
-	#Tra ve con tro o vi tri ban dau cho $a0,$a1
-	move $a0,$s0
-	move $a1,$s1
-	#In
-	move $a0,$s6
-	li $v0,1
-	syscall
+
 	#Tra ve ket qua
 	move $v0,$s6
 	#j _KetThuc
@@ -786,6 +888,8 @@ _Tim.Lap:
 	jr $ra
 _Tim.Lap.TraVe:
 	move $v0,$t0
+	#Tra ve dia chi cho $a1
+	sub $a1,$a1,$v0
 	addi $v0,$v0,-1
 	j _Tim.Lap.TraVe.TiepTuc
 #----------------------------------------------------------------------
@@ -1012,11 +1116,11 @@ _compare:
 #Dau thu tuc
 	addi $sp,$sp,-32
 	sw $ra,($sp)
-	sw $t0,4($sp) #do gai cua &a0
+	sw $t0,4($sp) #do dai cua &a0
 	sw $t1,8($sp) #do dai cua &a1
 	sw $t2,12($sp)
 	sw $t3,16($sp) #dia chi cua a0
-	sw $t4,20($sp) #dia chi cuar a1
+	sw $t4,20($sp) #dia chi cua a1
 	sw $t5,24($sp) #Bien dem
 
 #Khoi tao
