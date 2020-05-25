@@ -3,7 +3,7 @@
 	SoChanRandom: .word 0
 	MaxRandom: .word 0
 	tempString: .word 0
-	ChuCaiDoan: .word 0
+	ChuCaiDoan: .space 4000
 	choice: .word 0
 	x: .word 0
 	y: .word 0
@@ -36,6 +36,8 @@
 	yourscorerightnowis: .asciiz "Your score right now is: "
 	nhapluachondoanchuhaynguyentu: .asciiz "Ban muon doan 1 ki tu hay nguyen tu?\n1. Ki tu\n2. Nguyen tu"
 	guesstext: .asciiz "Guess --> "
+	existed: .asciiz "\nKi tu ban doan da duoc doan roi. Xin doan ki tu khac.\n"
+	invalidinput: .asciiz "\nKi tu nhap vao khong hop le. Xin vui long nhap lai ki tu khac.\n"
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 	InHangMan1Dong1: .asciiz "__________"
@@ -208,26 +210,59 @@ PLAYGAME.playagain:
 					# Nhan ki tu
 					li $v0,12
 					syscall
+					# Check if needed to upper
+					bge $v0,97,NeedToUpper.true1
+					j skip.toupper
+					NeedToUpper.true1:
+					ble $v0,122,NeedToUpper.true2
+					j skip.toupper
+					NeedToUpper.true2:
 					# to upper
+					toupper:
 					addi $v0,$v0,-32
-					# luu ki tu nhap vao x
-					sw $v0,x
-					# check xem ki tu da doan chua
-					la $a0,x
+					skip.toupper:
+					# luu ki tu nhap vao s0: ki tu doan
+					move $s0,$v0
+					sw $s0,x
+					# check xem ki tu da doan chua _ WWWWWWIIIIIIPP
+					move $a0,$s0
 					la $a1,ChuCaiDoan
 					jal _Tim
-					bne $v0,1,CongVaoChuCaiDoan
+
+					beq $v0,-1,CongVaoChuCaiDoan
+					# In existed
+					li $v0,4
+					la $a0,existed
+					syscall
 					j PLAYGAME.Loop.Playing.DoanKiTu
 					CongVaoChuCaiDoan:
-					la $a0,x
-					la $t5,ChuCaiDoan
-					move $a1,$t5
-					jal _CongKyTu
-					move $t5,$v0
-					move $a0,$t5
+					# Check if valid character
+					bge $s0,65,CongVaoChuCaiDoan.true1
+					# s0 < A --> Nhap lai
 					li $v0,4
+					la $a0,invalidinput
 					syscall
-					sw $v0,ChuCaiDoan
+					j PLAYGAME.Loop.Playing.DoanKiTu
+					CongVaoChuCaiDoan.true1:
+					ble $s0,90,CongVaoChuCaiDoan.true2
+					# s0 >= A nhung s0 < Z --> Nhap lai
+					li $v0,4
+					la $a0,invalidinput
+					syscall
+					j PLAYGAME.Loop.Playing.DoanKiTu
+					CongVaoChuCaiDoan.true2:
+					# Cong vao
+					move $a0,$s0
+					la $a1,ChuCaiDoan
+					jal _CongKyTu2
+					li $v0,4
+					la $a0,endline
+					syscall
+					# print test
+					li $v0,4
+					la $a0,ChuCaiDoan
+					syscall
+
 					# Tries
 
 					# Loop
@@ -627,6 +662,49 @@ _CongKyTu.Lap: #Moi vong lap gan str[i] vao $v0[i]
 	#Tra ve dia chi ban dau cho $s0
 	sub $s0,$s0,$t1
 	move $v0,$s0
+#Cuoi thu tuc
+	lw $ra,($sp)
+	lw $t0,4($sp)
+	lw $t1,8($sp)
+	lw $s0,12($sp)
+	addi $sp,$sp,32
+	jr $ra
+#----------------------------------------------------------------------
+_CongKyTu2: #$a0: ky tu can cong, $a1: chuoi ban dau truyen vao
+#Dau thu tuc
+	addi $sp,$sp,-32
+	sw $ra,($sp)
+	sw $t0,4($sp)
+	sw $t1,8($sp)
+	sw $s0,12($sp)
+#Khai bao
+	li $t1,0 #bien i
+	la $s0,($a1)#s0 la bien luu ket qua
+#Than thu tuc
+_CongKyTu2.Lap: #Moi vong lap gan str[i] vao $v0[i]
+	lb $t0,($a1)
+	sb $t0,($s0)
+	addi $a1,$a1,1
+	addi $s0,$s0,1
+	addi $t1,$t1,1
+	beq $t0,'\n',_CongKyTu2.TiepTuc
+	bne $t0,'\0',_CongKyTu2.Lap
+	_CongKyTu2.TiepTuc:
+	#Gan $v0[str.lenght()]=$a0
+	addi $s0,$s0,-1
+	sb $a0,($s0)
+	#Gan phan tu ket thuc chuoi \0 vao cuoi chuoi $v0
+	addi $s0,$s0,1
+	li $a0,'\0'
+	sb $a0,($s0)
+	#Tra ve dia chi ban dau cho $s0
+	sub $s0,$s0,$t1
+	move $v0,$s0
+	
+	#In
+	#move $a0,$v0
+	#li $v0,4
+	#syscall
 #Cuoi thu tuc
 	lw $ra,($sp)
 	lw $t0,4($sp)
