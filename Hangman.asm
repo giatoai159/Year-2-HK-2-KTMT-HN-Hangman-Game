@@ -827,6 +827,8 @@ _StringLength.Loop:
 	addi $a0,$a0,1
 	addi $v0,$v0,1
 	bne $t0,'\0',_StringLength.Loop
+#Tra ve con tro ban dau cho $a0
+	sub $a0,$a0,$v0
 #Cuoi thu tuc
 	addi $v0,$v0,-1
 	lw $ra,($sp)
