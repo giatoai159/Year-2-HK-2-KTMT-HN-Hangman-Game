@@ -25,7 +25,6 @@
 	thanhvien4: .asciiz "18120598 - Huynh Gia Toai"
 	nhapluachonsai: .asciiz "Vui long chi nhap so tu 1 den 4. Xin vui long nhap lai."
 	inHANGMAN: .asciiz "HANGMAN"
-	inAVAIL: .asciiz "AVAILABLE LETTERS"
 	pressany: .asciiz "Press any key to continue..."
 	inTYPEYOURGUESS: .asciiz "TYPE YOUR GUESS"
 	hint: .asciiz "Hint: "
@@ -45,6 +44,7 @@
 	VienTren: .asciiz "+------------------------------------------------+\n"
 	VienDuoi: .asciiz "\n+------------------------------------------------+\n"
 	res: .asciiz ""
+	inAVAIL: .asciiz "AVAILABLE LETTERS"
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 #--------------------------------------------------------------------TUAN---------------------------------------------------------------------#
 	fQuestion: .asciiz "question.txt"
@@ -278,6 +278,174 @@ EXIT:   # ket thuc chuong trinh
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
 
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
+_LanThuConLai: #int LanThuConLai(string TuCanDoan, string ChuCaiDoan)
+#$a0: TuCanDoan, $a1: ChuCaiDoan
+#Dau thu tuc
+	addi $sp,$sp,-32
+	sw $ra,($sp)
+	sw $s0,4($sp)
+	sw $s1,8($sp)
+	sw $t0,12($sp)
+	sw $t1,16($sp)
+	sw $t2,20($sp)
+	sw $s6,24($sp)
+#Khai bao
+	li $s6,0 #Bien ket qua
+
+	move $s0,$a0
+	move $s1,$a1
+
+	#Lay do dai $a1 -> $t2
+	la $a0,($s1)
+	jal _StringLength
+	move $t2,$v0
+	li $t0,0 #Bien i
+#Than thu tuc
+_LanThuConLai.Lap:
+	#Truyen cac tham so cho ham _Tim
+	#$a0: ky tu, $a1: chuoi, $v0: vi tri
+	lb $t1,($s1)
+	move $a0,$t1
+	la $a1,($s0)
+	jal _Tim
+	beq $v0,-1,_LanThuConLai.TangDem
+	_LanThuConLai.TangDem.TiepTuc:
+	addi $t0,$t0,1
+	addi $s1,$s1,1
+	bne $t0,$t2,_LanThuConLai.Lap
+	#Tra ve con tro o vi tri ban dau cho $s0,$s1
+	sub $s1,$s1,$t0
+	#Tra ve con tro o vi tri ban dau cho $a0,$a1
+	move $a0,$s0
+	move $a1,$s1
+	#In
+	move $a0,$s6
+	li $v0,1
+	syscall
+	#Tra ve ket qua
+	move $v0,$s6
+	#j _KetThuc
+	jr $ra
+#Cuoi thu tuc
+	lw $ra,($sp)
+	lw $s0,4($sp)
+	lw $s1,8($sp)
+	lw $t0,12($sp)
+	lw $t1,16($sp)
+	lw $t2,20($sp)
+	lw $s6,24($sp)
+	addi $sp,$sp,32
+_LanThuConLai.TangDem:
+	addi $s6,$s6,1
+	j _LanThuConLai.TangDem.TiepTuc
+#----------------------------------------------------------------------
+_InChuVaKiemTraWin: #int InChuVaKiemTraWin(string TuCanDoan, string ChuCaiDaDoan)
+#$a0: tu can doan, $a1: chucaidadoan, $v0: ket qua tra ve xem win hay chua
+#Dau thu tuc
+	addi $sp,$sp,-36
+	sw $ra,($sp)
+	sw $t0,4($sp)
+	sw $t1,8($sp)
+	sw $t2,12($sp)
+	sw $t3,16($sp)
+	sw $s6,20($sp)
+	sw $s7,24($sp)
+	sw $s0,28($sp)
+	sw $s1,32($sp)
+#Khoi tao
+	move $s0,$a0
+	move $s1,$a1
+
+	# $t1 = ($a0).length()
+	jal _StringLength
+	move $t1,$v0
+	addi $t1,$t1,1
+
+	li $s6,1 #bien win
+	la $s7,res #bien s
+	li $t0,1
+#Than thu tuc
+_InChuVaKiemTraWin.Lap:
+	#Truyen cac tham so cho ham _Tim
+	#$a0: ky tu, $a1: chuoi, $v0: vi tri
+	lb $t2,($s0)
+	move $a0,$t2
+	la $a1,($s1)
+	jal _Tim
+	move $t3,$v0
+
+	beq $t3,-1,_InChuVaKiemTraWin.Dung
+	_InChuVaKiemTraWin.Dung.TiepTuc:
+	bne $t3,-1,_InChuVaKiemTraWin.Sai
+	_InChuVaKiemTraWin.Sai.TiepTuc:
+	addi $t0,$t0,1
+	addi $s0,$s0,1
+	bne $t0,$t1,_InChuVaKiemTraWin.Lap
+	#Tra ve vi tri con tro bat dau cua $s0
+	sub $s0,$s0,$t1
+	subi $s0,$s0,1
+
+	move $a0,$s7
+	li $a2,1
+	jal _InChu
+	li $t2,0
+	#Xoa bo nho dem cua $s7 va tra ve vi tri con tro bat dau cua $s7
+_InChuVaKiemTraWin.s7.Lap:
+	lb $t1,($s7)
+	sb $t2,($s7)
+	addi $s7,$s7,1
+	addi $t0,$t0,1
+	bne $t1,'\0',_InChuVaKiemTraWin.s7.Lap
+	sub $s7,$s7,$t0
+	#Tra ve vi tri con tro bat dau cua $a0 va $a1
+	move $a0,$s0
+	move $a1,$s1
+	#Luu ket qua vao $v0
+	move $v0,$s6
+#Cuoi thu tuc
+	lw $ra,($sp)
+	lw $t0,4($sp)
+	lw $t1,8($sp)
+	lw $t2,12($sp)
+	lw $t3,16($sp)
+	lw $s6,20($sp)
+	lw $s7,24($sp)
+	lw $s0,28($sp)
+	lw $s1,32($sp)
+	addi $sp,$sp,36
+#Ket thuc
+	#j _KetThuc
+	jr $ra
+_InChuVaKiemTraWin.Dung:
+	li $s6,0
+	#Cong ky tu '_'
+	 #$a0: ky tu can cong, $a1: chuoi ban dau truyen vao
+	li $a0,'_'
+	move $a1,$s7
+	jal _CongKyTu
+	move $s7,$v0
+	#Cong ky tu ' '
+	#$a0: ky tu can cong, $a1: chuoi ban dau truyen vao
+	li $a0,' '
+	move $a1,$s7
+	jal _CongKyTu
+	move $s7,$v0
+	j _InChuVaKiemTraWin.Dung.TiepTuc
+_InChuVaKiemTraWin.Sai:
+	#Cong ky tu TuCanDoan[i]
+	#$a0: ky tu can cong, $a1: chuoi ban dau truyen vao
+	move $a0,$t2
+	move $a1,$s7
+	jal _CongKyTu
+	move $s7,$v0
+	#Cong ky tu ' '
+	#$a0: ky tu can cong, $a1: chuoi ban dau truyen vao
+	li $a0,' '
+	move $a1,$s7
+	jal _CongKyTu
+	move $s7,$v0
+	j _InChuVaKiemTraWin.Sai.TiepTuc
+#----------------------------------------------------------------------
 _InHangMan:
 #Dau thu tuc:
 	addi $sp,$sp,-32
@@ -711,13 +879,17 @@ _StringLength.Loop:
 	addi $a0,$a0,1
 	addi $v0,$v0,1
 	bne $t0,'\0',_StringLength.Loop
+#Tra ve con tro ban dau cho $a0
+	sub $a0,$a0,$v0
 #Cuoi thu tuc
 	addi $v0,$v0,-1
 	lw $ra,($sp)
 	lw $t0,4($sp)
 	addi $sp,$sp,32
 	jr $ra
-
+#_KetThuc:
+	#li $v0,10
+	#syscall
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 #--------------------------------------------------------------------TUNG---------------------------------------------------------------------#
 _compare:
