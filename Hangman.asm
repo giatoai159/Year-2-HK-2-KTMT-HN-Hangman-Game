@@ -1,14 +1,5 @@
 .data
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
-	SoChanRandom: .word 0
-	MaxRandom: .word 0
-	tempString: .word 0
-	ChuCaiDoan: .space 4000
-	choice: .word 0
-	x: .word 0
-	y: .word 0
-	tries: .word 0
-	win: .word 0
 	MENU: .asciiz "MENU"
 	playgame: .asciiz "1. Choi game"
 	hdsd: .asciiz "2. Huong dan choi"
@@ -40,6 +31,16 @@
 	inLOSE: .asciiz "LOSE"
 	invalidinput: .asciiz "\nKi tu nhap vao khong hop le. Xin vui long nhap lai ki tu khac.\n"
 	inPlayAgain: .asciiz "Play again? y/n"
+	SoChanRandom: .word 0
+	MaxRandom: .word 0
+	tempString: .word 0
+	ChuCaiDoan: .space 4000
+	choice: .word 0
+	x: .word 0
+	y: .word 0
+	tries: .word 0
+	win: .word 0
+
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 	InHangMan1Dong1: .asciiz "__________"
@@ -59,6 +60,8 @@
 #--------------------------------------------------------------------TUAN---------------------------------------------------------------------#
 	fQuestion: .asciiz "question.txt"
 	fScore: .asciiz "score.txt"
+	test: .asciiz "200-Huy-1"	
+	slash: .asciiz "/"
 	nQuestion: .word 0
 	nScore: .word 0	
 
@@ -68,8 +71,7 @@
 	answer: .space 20
 	suggestion: .space 1000
 
-	test: .asciiz "200-Huy-1"	
-	slash: .asciiz "/"
+
 	
 	int_string_reverse: .space 12
 	int_string_res: .space 12
