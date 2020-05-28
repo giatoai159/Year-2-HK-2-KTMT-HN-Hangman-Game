@@ -331,14 +331,16 @@ PLAYGAME.playagain:
 					syscall
 					# to upper
 					jal _toUpperString
-					
-					# compare ket qua
-					#move $a0,$v0
-					#lw $s0,answer
-					#move $a1,$s0
-					#jal _compare
-					#beq $v0,0,PLAYGAME.Loop.Playing.Break # --> Lose
-					#li $t3,1 # doan dung
+
+					# compare ket qua -- WIP
+					la $a0,ChuCaiDoan
+					la $a1,answer
+					jal _compare
+					move $a0,$v0
+					li $v0,1
+					syscall
+					beq $v0,0,PLAYGAME.Loop.Playing.Break # --> Lose
+					li $t3,1 # doan dung
 			PLAYGAME.Loop.Playing.Break:
 				beq $t3,1,PLAYGAME.Loop.Win
 				# LOSE branch 
