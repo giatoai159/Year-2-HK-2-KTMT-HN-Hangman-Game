@@ -317,9 +317,6 @@ PLAYGAME.playagain:
 					li $v0,4
 					la $a0,endline
 					syscall
-					li $v0,4
-					la $a0,answer
-					syscall
 					# In Guess -->
 					li $v0,4
 					la $a0,guesstext
@@ -331,14 +328,20 @@ PLAYGAME.playagain:
 					syscall
 					# to upper
 					jal _toUpperString
-
-					# compare ket qua -- WIP
+					# Xoa ki tu xuong dong cho input
+					li $s0,0
+					XoaXuongDong:
+    					lb $a3,ChuCaiDoan($s0)
+    					addi $s0,$s0,1
+    					bnez $a3,XoaXuongDong
+    					beq $a1,$s0,XoaXuongDong.Exit
+    					subiu $s0,$s0,2
+    					sb $0, ChuCaiDoan($s0)
+					XoaXuongDong.Exit:
+					# compare ket qua
 					la $a0,ChuCaiDoan
 					la $a1,answer
 					jal _compare
-					move $a0,$v0
-					li $v0,1
-					syscall
 					beq $v0,0,PLAYGAME.Loop.Playing.Break # --> Lose
 					li $t3,1 # doan dung
 			PLAYGAME.Loop.Playing.Break:
@@ -388,16 +391,16 @@ PLAYGAME.playagain:
 				# increase level
 				addi $t4,$t4,1
 				# in Play again
-				la $a0,inPlayAgain
-				li $v0,4
-				syscall
+#				la $a0,inPlayAgain
+#				li $v0,4
+#				syscall
 				# Nhap lua chon
-				li $v0,12
-				syscall
-				move $t1,$v0
-				li $v0,4
-				la $a0,endline
-				syscall
+#				li $v0,12
+#				syscall
+#				move $t1,$v0
+#				li $v0,4
+#				la $a0,endline
+#				syscall
 				j PLAYGAME.playagain
 
 LEADERBOARD:
