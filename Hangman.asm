@@ -65,8 +65,6 @@
 #--------------------------------------------------------------------TUAN---------------------------------------------------------------------#
 	fQuestion: .asciiz "question.txt"
 	fScore: .asciiz "score.txt"
-	test: .asciiz "200-Huy-1"	
-	slash: .asciiz "/"
 	nQuestion: .word 0
 	nScore: .word 0	
 
@@ -76,12 +74,12 @@
 	answer: .space 20
 	suggestion: .space 1000
 
-
+	slash: .asciiz "/"
 	
 	int_string_reverse: .space 12
 	int_string_res: .space 12
 
-	array: .space 0
+	new_score: .space 500
 	score_arr_int: .word 0:11
 	score_arr_string_pointer: .word 0:11
 	score_arr_string: .space 1000000
