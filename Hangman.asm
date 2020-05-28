@@ -33,6 +33,9 @@
 	invalidinput: .asciiz "\nKi tu nhap vao khong hop le. Xin vui long nhap lai ki tu khac.\n"
 	inPlayAgain: .asciiz "Play again? y/n --> "
 	inLEADERBOARD: .asciiz "LEADERBOARD"
+	yourlevel: .asciiz "Level: "
+	enterYourName: .asciiz "Enter your name here: "
+	playerName: .space 4000
 	SoChanRandom: .word 0
 	MaxRandom: .word 0
 	tempString: .word 0
@@ -131,8 +134,21 @@ MainMenu:
 	beq $t0,4,LEADERBOARD
 	beq $t0,5,EXIT
 	j MainMenu
-PLAYGAME: # t0: Point , t1: Play again or not, t2: tries, t3: bool win or not, t4: level
+PLAYGAME: # t0: Point , t1: Play again or not, t2: tries, t3: bool win or not, t4: level, t5: choice doan ki tu hoac nguyen tu, t6: ten ng choi
+	# Xuat nhap ten
+	li $v0,4
+	la $a0,enterYourName
+	syscall
+	# Nhap ten nguoi choi
+	li $v0,8
+	la $a0,playerName
+	li $a1,1000
+	syscall
+	li $v0,4
+	la $a0,endline
+	syscall
 	li $t0,0 # Point = 0
+	li $t4,1 # level 1
 	li $t1,'y' # Play or play again = yes
 PLAYGAME.playagain:
 	beq $t1,'y',PLAYGAME.Loop
@@ -190,6 +206,16 @@ PLAYGAME.playagain:
 			li $v0,4
 			la $a0,endline
 			syscall
+			# Level
+			li $v0,4
+			la $a0,yourlevel
+			syscall
+			li $v0,1
+			move $a0,$t4
+			syscall
+			li $v0,4
+			la $a0,endline
+			syscall
 			# Score
 			li $v0,4
 			la $a0,yourscorerightnowis
@@ -214,9 +240,9 @@ PLAYGAME.playagain:
 			# Choice
 			li $v0,12
 			syscall
-			move $t4,$v0 # move choice vao $t4
-			beq $t4,'1',PLAYGAME.Loop.Playing.DoanKiTu
-			beq $t4,'2',PLAYGAME.Loop.Playing.DoanNguyenTu
+			move $t5,$v0 # move choice vao $t5
+			beq $t5,'1',PLAYGAME.Loop.Playing.DoanKiTu
+			beq $t5,'2',PLAYGAME.Loop.Playing.DoanNguyenTu
 			li $v0,4
 			la $a0,endline
 			syscall
@@ -245,7 +271,6 @@ PLAYGAME.playagain:
 					skip.toupper:
 					# luu ki tu nhap vao s0: ki tu doan
 					move $s0,$v0
-					sw $s0,x
 					# check xem ki tu da doan chua 
 					move $a0,$s0
 					la $a1,ChuCaiDoan
@@ -284,7 +309,6 @@ PLAYGAME.playagain:
 					la $a0,answer
 					la $a1,ChuCaiDoan
 					jal _LanThuConLai
-					#########
 					move $t2,$v0
 					# Loop
 					blt $t2,8, PLAYGAME.Loop.Playing
@@ -328,6 +352,8 @@ PLAYGAME.playagain:
 
 				# set point = 0
 				li $t0,0
+				# set level = 1
+				li $t4,1
 				# in Play again
 				la $a0,inPlayAgain
 				li $v0,4
@@ -351,6 +377,8 @@ PLAYGAME.playagain:
 				la $a0,answer
 				jal _StringLength
 				add $t0,$t0,$v0
+				# increase level
+				addi $t4,$t4,1
 				# in Play again
 				la $a0,inPlayAgain
 				li $v0,4
@@ -770,6 +798,21 @@ InHangMan.7:
 	jal _InChu
 	j _InHangMan.KetThuc
 InMotDongKhoangTrong:
+	la $a0,MotDongKhoangTrong
+	li $v0,4
+	syscall
+	la $a0,MotDongKhoangTrong
+	li $v0,4
+	syscall
+	la $a0,MotDongKhoangTrong
+	li $v0,4
+	syscall
+	la $a0,MotDongKhoangTrong
+	li $v0,4
+	syscall
+	la $a0,MotDongKhoangTrong
+	li $v0,4
+	syscall
 	la $a0,MotDongKhoangTrong
 	li $v0,4
 	syscall
