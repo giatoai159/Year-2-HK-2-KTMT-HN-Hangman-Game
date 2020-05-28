@@ -274,15 +274,6 @@ PLAYGAME.playagain:
 					syscall
 					# Tries
 					la $a0,answer
-					la $v0,4
-					syscall
-					la $a0,endline
-					li $v0,4
-					syscall
-					la $a0,ChuCaiDoan
-					la $v0,4
-					syscall
-					la $a0,answer
 					la $a1,ChuCaiDoan
 					jal _LanThuConLai
 					#########
