@@ -4,7 +4,8 @@
 	playgame: .asciiz "1. Choi game"
 	hdsd: .asciiz "2. Huong dan choi"
 	thanhvien: .asciiz "3. Thanh vien"
-	thoat: .asciiz "4. Thoat"
+	leaderboard: .asciiz "4. Leaderboard"
+	thoat: .asciiz "5. Thoat"
 	endline: .asciiz "\n"
 	nhapluachon: .asciiz "Nhap lua chon: "
 	inHUONGDANCHOI: .asciiz "Huong dan choi"
@@ -31,6 +32,7 @@
 	inLOSE: .asciiz "LOSE"
 	invalidinput: .asciiz "\nKi tu nhap vao khong hop le. Xin vui long nhap lai ki tu khac.\n"
 	inPlayAgain: .asciiz "Play again? y/n --> "
+	inLEADERBOARD: .asciiz "LEADERBOARD"
 	SoChanRandom: .word 0
 	MaxRandom: .word 0
 	tempString: .word 0
@@ -106,6 +108,11 @@ MainMenu:
 	li $a1,0
 	li $a2,0
 	jal _InChu
+	# In leaderboard
+	la $a0,leaderboard
+	li $a1,0
+	li $a2,0
+	jal _InChu
 	# In thoat
 	la $a0,thoat
 	li $a1,0
@@ -121,7 +128,8 @@ MainMenu:
 	beq $t0,1,PLAYGAME
 	beq $t0,2,HUONGDANCHOI
 	beq $t0,3,THANHVIEN
-	beq $t0,4,EXIT
+	beq $t0,4,LEADERBOARD
+	beq $t0,5,EXIT
 	j MainMenu
 PLAYGAME: # t0: Point , t1: Play again or not, t2: tries, t3: bool win or not, t4: level
 	li $t0,0 # Point = 0
@@ -355,9 +363,19 @@ PLAYGAME.playagain:
 				la $a0,endline
 				syscall
 				j PLAYGAME.playagain
-		j MainMenu
 
 LEADERBOARD:
+	# In leaderboard
+	la $a0,inLEADERBOARD
+	li $a1,1
+	li $a2,1
+	jal _InChu
+	# In press any
+	li $v0,4
+	la $a0,pressany
+	syscall
+	li $v0,12
+	syscall
 	j MainMenu
 HUONGDANCHOI:
 	# In HUONGDANCHOI
