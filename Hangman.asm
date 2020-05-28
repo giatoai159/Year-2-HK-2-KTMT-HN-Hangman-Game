@@ -1978,4 +1978,92 @@ _Reverse.End:
 	addi	$sp, $sp, 20
 
 	jr 	$ra
+
+#Nhan vao #$a0 la diem, $a1 la ten, $a2 la level cua nguoi choi moi:
+_Get.New_Score:
+	addi	$sp, $sp, -24
+	sw 	$a0, ($sp)
+	sw	$a1, 8($sp)
+	sw	$a2, 12($sp)
+	sw	$s0, 16($sp)
+	sw	$t0, 20($sp)
+	sw	$ra, 24($sp)
+
+	la	$s0, new_score
+	
+	j	_Loop1.Prepare
+	
+_Loop1.Prepare:
+	jal 	_Convert_Int_To_String
+	la	$a0, int_string_res
+
+	j	_Loop1
+
+_Loop1:
+	lb	$t0, ($a0)
+	beq	$t0, $0, _Loop2.Prepare
+	
+	sb	$t0, ($s0)
+
+	addi	$s0, $s0, 1	
+	addi	$a0, $a0, 1
+	j	_Loop1
+
+_Loop2.Prepare:
+	li	$t0, '-'
+	sb	$t0, ($s0)
+
+	addi	$s0, $s0, 1
+
+	lw	$a0, 8($sp)
+
+	j	_Loop2
+
+_Loop2:
+	lb	$t0, ($a0)
+	beq	$t0, $0, _Loop3.Prepare
+	
+	sb	$t0, ($s0)
+
+	addi	$s0, $s0, 1	
+	addi	$a0, $a0, 1
+
+	j	_Loop2
+
+_Loop3.Prepare:
+	li	$t0, '-'
+	sb	$t0, ($s0)
+
+	addi	$s0, $s0, 1
+
+	lw	$a0, 12($sp)
+	jal	_Convert_Int_To_String
+
+	la	$a0, int_string_res
+
+	j	_Loop3
+
+_Loop3:
+	lb	$t0, ($a0)
+	beq	$t0, $0, _Get.New_Score.End
+	
+	sb	$t0, ($s0)
+
+	addi	$s0, $s0, 1	
+	addi	$a0, $a0, 1
+
+	j	_Loop3
+
+_Get.New_Score.End:
+	sb	$0, ($s0)
+
+	lw 	$a0, ($sp)
+	lw	$a1, 8($sp)
+	lw	$a2, 12($sp)
+	lw	$s0, 16($sp)
+	lw	$t0, 20($sp)
+	lw	$ra, 24($sp)
+	addi	$sp, $sp, 24
+
+	jr 	$ra
 #--------------------------------------------------------------------TUAN---------------------------------------------------------------------#
