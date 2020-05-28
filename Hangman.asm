@@ -30,7 +30,7 @@
 	inWIN: .asciiz "WIN!"
 	inLOSE: .asciiz "LOSE"
 	invalidinput: .asciiz "\nKi tu nhap vao khong hop le. Xin vui long nhap lai ki tu khac.\n"
-	inPlayAgain: .asciiz "Play again? y/n"
+	inPlayAgain: .asciiz "Play again? y/n --> "
 	SoChanRandom: .word 0
 	MaxRandom: .word 0
 	tempString: .word 0
@@ -47,7 +47,7 @@
 	InHangMan1Dong2: .asciiz "|/       |"
 	InHangMan1Dong3: .asciiz "|         "
 	InHangMan2Dong3: .asciiz "|        O"
-	InHangMan3Dong4: .asciiz "|       /"
+	InHangMan3Dong4: .asciiz "|       / "
 	InHangMan4Dong4: .asciiz "|       /|"
 	InHangMan5Dong4: .asciiz "|       /|\\"
 	InHangMan7Dong5: .asciiz "|       / \\"
@@ -204,13 +204,19 @@ PLAYGAME.playagain:
 			la $a0,nhapluachon
 			syscall
 			# Choice
-			li $v0,5
+			li $v0,12
 			syscall
 			move $t4,$v0 # move choice vao $t4
-			beq $t4,1,PLAYGAME.Loop.Playing.DoanKiTu
-			beq $t4,2,PLAYGAME.Loop.Playing.DoanNguyenTu
+			beq $t4,'1',PLAYGAME.Loop.Playing.DoanKiTu
+			beq $t4,'2',PLAYGAME.Loop.Playing.DoanNguyenTu
+			li $v0,4
+			la $a0,endline
+			syscall
 			j PLAYGAME.Loop.Playing.NhapSai
 				PLAYGAME.Loop.Playing.DoanKiTu:
+					li $v0,4
+					la $a0,endline
+					syscall
 					# In Guess -->
 					li $v0,4
 					la $a0,guesstext
@@ -276,15 +282,18 @@ PLAYGAME.playagain:
 					la $a0,ChuCaiDoan
 					la $v0,4
 					syscall
-					#la $a0,answer
-					#la $a1,ChuCaiDoan
-					#jal _LanThuConLai
+					la $a0,answer
+					la $a1,ChuCaiDoan
+					jal _LanThuConLai
 					#########
-					#move $t2,$v0
+					move $t2,$v0
 					# Loop
 					blt $t2,8, PLAYGAME.Loop.Playing
 					j PLAYGAME.Loop.Playing.Break
 				PLAYGAME.Loop.Playing.DoanNguyenTu:
+					li $v0,4
+					la $a0,endline
+					syscall
 					li $v0,4
 					la $a0,answer
 					syscall
@@ -328,6 +337,9 @@ PLAYGAME.playagain:
 				li $v0,12
 				syscall
 				move $t1,$v0
+				li $v0,4
+				la $a0,endline
+				syscall
 				j PLAYGAME.playagain
 				# WIN branch
 				PLAYGAME.Loop.Win:
@@ -346,6 +358,10 @@ PLAYGAME.playagain:
 				syscall
 				# Nhap lua chon
 				li $v0,12
+				syscall
+				move $t1,$v0
+				li $v0,4
+				la $a0,endline
 				syscall
 				j PLAYGAME.playagain
 		j MainMenu
@@ -484,6 +500,7 @@ _LanThuConLai: #int LanThuConLai(string TuCanDoan, string ChuCaiDoan)
 	move $t2,$v0
 	li $t0,0 #Bien i
 #Than thu tuc
+	beqz $t2,_LanThuConLai.TraVe
 _LanThuConLai.Lap:
 	#Truyen cac tham so cho ham _Tim
 	#$a0: ky tu, $a1: chuoi, $v0: vi tri
@@ -496,13 +513,13 @@ _LanThuConLai.Lap:
 	addi $t0,$t0,1
 	addi $s1,$s1,1
 	bne $t0,$t2,_LanThuConLai.Lap
-	#Tra ve con tro o vi tri ban dau cho $s0,$s1
+	#Tra ve dia chi cho $a0, $a1
 	sub $s1,$s1,$t0
-
+	move $a1,$s1
+	move $a0,$s0
 	#Tra ve ket qua
 	move $v0,$s6
-	#j _KetThuc
-	jr $ra
+_LanThuConLai.TraVe:
 #Cuoi thu tuc
 	lw $ra,($sp)
 	lw $s0,4($sp)
@@ -512,6 +529,9 @@ _LanThuConLai.Lap:
 	lw $t2,20($sp)
 	lw $s6,24($sp)
 	addi $sp,$sp,32
+#j _KetThuc
+	jr $ra
+
 _LanThuConLai.TangDem:
 	addi $s6,$s6,1
 	j _LanThuConLai.TangDem.TiepTuc
