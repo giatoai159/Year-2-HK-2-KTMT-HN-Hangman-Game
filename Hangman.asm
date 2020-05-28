@@ -43,6 +43,8 @@
 	choice: .word 0
 	x: .word 0
 	y: .word 0
+	point: .word 0
+	level: .word 0
 	tries: .word 0
 	win: .word 0
 
@@ -346,8 +348,14 @@ PLAYGAME.playagain:
 				li $a2,1
 				jal _InChu
 				# Luu point vao file - WIP
-
-
+				sw $t0,point
+				sw $t4,level
+				lw $a0,point
+				la $a1,playerName
+				lw $a2,level
+				jal _Get.New_Score
+				la $a0,new_score
+				jal _Score.Process
 				# set point = 0
 				li $t0,0
 				# set level = 1
@@ -2020,6 +2028,7 @@ _Loop2.Prepare:
 _Loop2:
 	lb	$t0, ($a0)
 	beq	$t0, $0, _Loop3.Prepare
+       beq	$t0, '\n', _Loop3.Prepare
 	
 	sb	$t0, ($s0)
 
