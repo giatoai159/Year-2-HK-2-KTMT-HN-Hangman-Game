@@ -393,17 +393,6 @@ PLAYGAME.playagain:
 				add $t0,$t0,$v0
 				# increase level
 				addi $t4,$t4,1
-				# in Play again
-#				la $a0,inPlayAgain
-#				li $v0,4
-#				syscall
-				# Nhap lua chon
-#				li $v0,12
-#				syscall
-#				move $t1,$v0
-#				li $v0,4
-#				la $a0,endline
-#				syscall
 				j PLAYGAME.playagain
 
 LEADERBOARD:
@@ -540,6 +529,7 @@ _toUpperString.exit:
 	addi $sp,$sp,32
 	jr $ra
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
+
 
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 _LanThuConLai: #int LanThuConLai(string TuCanDoan, string ChuCaiDoan)
