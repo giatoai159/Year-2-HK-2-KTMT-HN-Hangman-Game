@@ -1,5 +1,7 @@
 .data
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
+	fQuestion: .asciiz "question.txt"
+	fScore: .asciiz "score.txt"	
 	MENU: .asciiz "MENU"
 	playgame: .asciiz "1. Choi game"
 	hdsd: .asciiz "2. Huong dan choi"
@@ -35,6 +37,8 @@
 	inLEADERBOARD: .asciiz "LEADERBOARD"
 	yourlevel: .asciiz "Level: "
 	enterYourName: .asciiz "Enter your name here: "
+	slash: .asciiz "/"
+	null: .asciiz ""
 	playerName: .space 4000
 	SoChanRandom: .word 0
 	MaxRandom: .word 0
@@ -65,8 +69,7 @@
 	inAVAIL: .asciiz "AVAILABLE LETTERS"
 #--------------------------------------------------------------------VINH---------------------------------------------------------------------#
 #--------------------------------------------------------------------TUAN---------------------------------------------------------------------#
-	fQuestion: .asciiz "question.txt"
-	fScore: .asciiz "score.txt"
+	
 	nQuestion: .word 0
 	nScore: .word 0	
 
@@ -75,8 +78,6 @@
 
 	answer: .space 20
 	suggestion: .space 1000
-
-	slash: .asciiz "/"
 	
 	int_string_reverse: .space 12
 	int_string_res: .space 12
@@ -153,7 +154,7 @@ PLAYGAME: # t0: Point , t1: Play again or not, t2: tries, t3: bool win or not, t
 PLAYGAME.playagain:
 	beq $t1,'y',PLAYGAME.Loop
 	beq $t1,'Y',PLAYGAME.Loop
-	j LEADERBOARD
+	j MainMenu
 	PLAYGAME.Loop:
 		# Get answer and hint
 		jal _File.ReadFile.Question # Doc file
@@ -355,9 +356,11 @@ PLAYGAME.playagain:
 				# Luu point vao file - WIP
 				sw $t0,point
 				sw $t4,level
+
 				lw $a0,point
 				la $a1,playerName
 				lw $a2,level
+
 				jal _Get.New_Score
 				la $a0,new_score
 				jal _Score.Process
@@ -409,12 +412,26 @@ LEADERBOARD:
 	li $a1,1
 	li $a2,1
 	jal _InChu
+
+	jal 	_File.ReadFile.Score
+
+	la 	$a0, score
+	jal	_Score.Get.N
+
+	lw	$t0, nScore
+	beq	$t0, 0, LEADERBOARD.continue
+
+	li	$a0, 0
+	jal	_Score.Process.Store_Into_Array.Prepare
+
+LEADERBOARD.continue:
 	# In press any
 	li $v0,4
 	la $a0,pressany
 	syscall
 	li $v0,12
 	syscall
+
 	j MainMenu
 HUONGDANCHOI:
 	# In HUONGDANCHOI
@@ -1602,6 +1619,25 @@ _Score.Process.Append_New_Score.Append:
 	j 	_Score.Process.Append_New_Score.Append
 	
 _Score.Process.Store_Into_Array.Prepare:
+	addi 	$sp, $sp, -68
+	sw 	$a0, ($sp)
+	sw 	$a1, 4($sp)
+	sw 	$a2, 8($sp)
+	sw 	$a3, 12($sp)
+	sw 	$s0, 16($sp)
+	sw 	$s1, 20($sp)
+	sw 	$s2, 24($sp)
+	sw 	$s3, 28($sp)
+	sw 	$s4, 32($sp)
+	sw 	$s6, 36($sp)
+	sw 	$t0, 40($sp)
+	sw 	$t1, 44($sp)
+	sw 	$t2, 48($sp)
+	sw 	$t3, 52($sp)
+	sw 	$t4, 56($sp)
+	sw 	$t5, 60($sp)
+	sw 	$ra, 64($sp)
+
 	la	$s0, score
 	la	$s1, score_arr_string
 	la	$t1, score_arr_string_pointer
@@ -1763,7 +1799,6 @@ swap:
 _Score.Process.Print.Prepare:
 	la	$t1, score_arr_string_pointer
 	li 	$t3, 0
-
 	li	$t0, 10
 
 	bgt	$t4, $t0, _Score.Dec_nScore
@@ -1791,12 +1826,57 @@ _Score.Process.Print.Loop:
 	j	_Score.Process.Print.Loop
 
 _Score.Process.WriteToFile.Prepare:
+	lw	$a0, ($sp)
+	beq	$a0, $0, _Score.Process.LeaderBoard
+
+	lw 	$a0, ($sp)
+	lw 	$a1, 4($sp)
+	lw 	$a2, 8($sp)
+	lw 	$a3, 12($sp)
+	lw 	$s0, 16($sp)
+	lw 	$s1, 20($sp)
+	lw 	$s2, 24($sp)
+	lw 	$s3, 28($sp)
+	lw 	$s4, 32($sp)
+	lw 	$s6, 36($sp)
+	lw 	$t0, 40($sp)
+	lw 	$t1, 44($sp)
+	lw 	$t2, 48($sp)
+	lw 	$t3, 52($sp)
+	lw 	$t4, 56($sp)
+	lw 	$t5, 60($sp)
+	lw 	$ra, 64($sp)
+
+	addi	$sp, $sp, 68
+
 	la	$a0, fScore
 	jal	_File.OpenFile.ForWrite
 
 	move	$s6, $v0 #get Descriptor
 
 	j	_Score.Process.WriteToFile.Write_nScore
+
+_Score.Process.LeaderBoard:
+	lw 	$a0, ($sp)
+	lw 	$a1, 4($sp)
+	lw 	$a2, 8($sp)
+	lw 	$a3, 12($sp)
+	lw 	$s0, 16($sp)
+	lw 	$s1, 20($sp)
+	lw 	$s2, 24($sp)
+	lw 	$s3, 28($sp)
+	lw 	$s4, 32($sp)
+	lw 	$s6, 36($sp)
+	lw 	$t0, 40($sp)
+	lw 	$t1, 44($sp)
+	lw 	$t2, 48($sp)
+	lw 	$t3, 52($sp)
+	lw 	$t4, 56($sp)
+	lw 	$t5, 60($sp)
+	lw 	$ra, 64($sp)
+
+	addi	$sp, $sp, 68
+	jr 	$ra
 
 _Score.Process.WriteToFile.Write_nScore:
 	lw	$a0, nScore
@@ -1877,6 +1957,7 @@ _Score.Process.End:
 	lw 	$t5, 60($sp)
 	lw 	$ra, 64($sp)
 
+	addi	$sp, $sp, 68
 	jr 	$ra
 	
 NewLine:
@@ -1992,7 +2073,7 @@ _Reverse.End:
 
 #Nhan vao #$a0 la diem, $a1 la ten, $a2 la level cua nguoi choi moi:
 _Get.New_Score:
-	addi	$sp, $sp, -24
+	addi	$sp, $sp, -28
 	sw 	$a0, ($sp)
 	sw	$a1, 8($sp)
 	sw	$a2, 12($sp)
@@ -2033,7 +2114,7 @@ _Loop2.Prepare:
 _Loop2:
 	lb	$t0, ($a0)
 	beq	$t0, $0, _Loop3.Prepare
-       beq	$t0, '\n', _Loop3.Prepare
+       	beq	$t0, '\n', _Loop3.Prepare
 	
 	sb	$t0, ($s0)
 
@@ -2075,7 +2156,7 @@ _Get.New_Score.End:
 	lw	$s0, 16($sp)
 	lw	$t0, 20($sp)
 	lw	$ra, 24($sp)
-	addi	$sp, $sp, 24
+	addi	$sp, $sp, 28
 
 	jr 	$ra
 #--------------------------------------------------------------------TUAN---------------------------------------------------------------------#
