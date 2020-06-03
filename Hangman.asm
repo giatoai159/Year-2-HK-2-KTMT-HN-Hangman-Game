@@ -33,6 +33,7 @@
 	inWIN: .asciiz "WIN!"
 	inLOSE: .asciiz "LOSE"
 	invalidinput: .asciiz "\nKi tu nhap vao khong hop le. Xin vui long nhap lai ki tu khac.\n"
+	invalidinputname: .asciiz "Ten nguoi choi chi duoc nhap A-Z, a-z, 0-9. Xin vui long nhap lai.\n"
 	inPlayAgain: .asciiz "Press y to play again or any other keys to stop --> "
 	inLEADERBOARD: .asciiz "LEADERBOARD"
 	yourlevel: .asciiz "Level: "
@@ -136,6 +137,7 @@ MainMenu:
 	beq $t0,5,EXIT
 	j MainMenu
 PLAYGAME: # t0: Point , t1: Play again or not, t2: tries, t3: bool win or not, t4: level, t5: choice doan ki tu hoac nguyen tu, t6: ten ng choi
+	EnterNameAgain:
 	# Xuat nhap ten
 	li $v0,4
 	la $a0,enterYourName
@@ -145,9 +147,15 @@ PLAYGAME: # t0: Point , t1: Play again or not, t2: tries, t3: bool win or not, t
 	la $a0,playerName
 	li $a1,1000
 	syscall
+	la $a0,playerName
+	jal _checkValidString
+	beq $v0,1, PLAYGAME.continue
+	 Xuat nhap ten sai
 	li $v0,4
-	la $a0,endline
+	la $a0,invalidinputname
 	syscall
+	j EnterNameAgain
+PLAYGAME.continue:
 	li $t0,0 # Point = 0
 	li $t4,1 # level 1
 	li $t1,'y' # Play or play again = yes
@@ -510,7 +518,7 @@ _toUpperString:
 	sw $t0,4($sp)
 	sw $t1,8($sp)
 	sw $s0,12($sp)
-move $s0, $a0
+	move $s0, $a0
 #Than thu tuc
 	#Khoi tao vong lap
 	li $t0, 0
@@ -534,6 +542,56 @@ _toUpperString.exit:
 	lw $s0,12($sp)
 	addi $sp,$sp,32
 	jr $ra
+
+
+_checkValidString:
+#Dau thu tuc
+	addi $sp,$sp,-32
+	sw $ra,($sp)
+	sw $t0,4($sp)
+	sw $t1,8($sp)
+	sw $a0,12($sp)
+#Than thu tuc
+	#Khoi tao vong lap
+	li $t0, 0
+	li $v0, 1
+_checkValidString.loop:
+	lb $t1, playerName($t0)  
+
+	beq $t1, 0, _checkValidString.exit
+
+	bge $t1, '0', _checkValidString.valid1
+	j _checkValidString.invalid
+_checkValidString.valid1:
+	ble $t1, '9', _checkValidString.next
+	bge $t1, 'A', _checkValidString.valid2
+	j _checkValidString.invalid
+
+_checkValidString.valid2:	
+	ble $t1, 'Z', _checkValidString.next
+	bge $t1, 'a', _checkValidString.valid3
+	j _checkValidString.invalid
+_checkValidString.valid3:
+	ble $t1, 'z', _checkValidString.next
+	j _checkValidString.invalid
+
+
+_checkValidString.invalid:
+	beq $t1,'\n',_checkValidString.exit
+	li $v0,0
+	j _checkValidString.exit
+_checkValidString.next:
+	addi $t0,$t0,1
+	j _checkValidString.loop
+_checkValidString.exit:
+#Cuoi thu tuc
+	lw $ra,($sp)
+	lw $t0,4($sp)
+	lw $t1,8($sp)
+	lw $a0,12($sp)
+	addi $sp,$sp,32
+	jr $ra
+	
 #--------------------------------------------------------------------TOAI---------------------------------------------------------------------#
 
 
