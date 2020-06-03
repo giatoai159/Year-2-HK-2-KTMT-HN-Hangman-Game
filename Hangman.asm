@@ -33,7 +33,7 @@
 	inWIN: .asciiz "WIN!"
 	inLOSE: .asciiz "LOSE"
 	invalidinput: .asciiz "\nKi tu nhap vao khong hop le. Xin vui long nhap lai ki tu khac.\n"
-	inPlayAgain: .asciiz "Play again? y/n --> "
+	inPlayAgain: .asciiz "Press y to play again or any other keys to stop --> "
 	inLEADERBOARD: .asciiz "LEADERBOARD"
 	yourlevel: .asciiz "Level: "
 	enterYourName: .asciiz "Enter your name here: "
@@ -393,6 +393,12 @@ PLAYGAME.playagain:
 				add $t0,$t0,$v0
 				# increase level
 				addi $t4,$t4,1
+				# In press any
+				li $v0,4
+				la $a0,pressany
+				syscall
+				li $v0,12
+				syscall
 				j PLAYGAME.playagain
 
 LEADERBOARD:
