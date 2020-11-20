@@ -150,7 +150,7 @@ PLAYGAME: # t0: Point , t1: Play again or not, t2: tries, t3: bool win or not, t
 	la $a0,playerName
 	jal _checkValidString
 	beq $v0,1, PLAYGAME.continue
-	 Xuat nhap ten sai
+	# Xuat nhap ten sai
 	li $v0,4
 	la $a0,invalidinputname
 	syscall
