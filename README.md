@@ -1,2 +1,2 @@
-# Computer-Architecture-and-Assembly-Language---Project-2-Hangman-Game
+# Year-2-HK-2-KTMT-HN-Hangman-Game
 Using MIPS create Hangman Game.
